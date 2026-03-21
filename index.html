@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TAVIK · JUSTWATCH</title>
 <meta name="description" content="Discover movies and TV shows. Stream, rate and review everything.">
+<meta name="copyright" content="TAVIK JUSTWATCH © 2026">
+<meta name="author" content="Tavikk">
+<!-- X-Frame Protection — prevents others from embedding TAVIK -->
+<style>html{display:none}</style>
+<script>
+  // Anti-embedding protection
+  if(window.self===window.top){
+    document.documentElement.style.display='block';
+  } else {
+    // Someone trying to embed TAVIK — redirect them
+    window.top.location=window.self.location;
+  }
+</script>
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -252,11 +265,12 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   <div class="logo" onclick="showTab('home')">TAVIK<span>· JUSTWATCH</span></div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showTab('home',this)">Home</button>
-    <button class="nav-tab" onclick="showTab('movies',this)">Movies</button>
-    <button class="nav-tab" onclick="showTab('tvshows',this)">TV Shows</button>
-    <button class="nav-tab" onclick="showTab('netflix',this)">Netflix</button>
-    <button class="nav-tab" onclick="showTab('trending',this)">Trending</button>
-    <button class="nav-tab" onclick="showTab('anime',this)">🎌 Anime</button>
+    <button class="nav-tab" onclick="showTab('movies',this)">🎬 TavFlix</button>
+    <button class="nav-tab" onclick="showTab('tvshows',this)">📺 TavStream</button>
+    <button class="nav-tab" onclick="showTab('naija',this)">🇳🇬 TavNaija</button>
+    <button class="nav-tab" onclick="showTab('anime',this)">🎌 TavAnime</button>
+    <button class="nav-tab" onclick="showTab('music',this)">🎵 TavBeats</button>
+    <button class="nav-tab" onclick="showTab('trending',this)">🔥 Trending</button>
   </div>
   <div class="nav-right">
     <div class="search-wrap">
@@ -270,11 +284,12 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 <!-- MOBILE MENU -->
 <div class="mobile-nav" id="mobileNav">
   <button class="mobile-tab active" onclick="showTab('home',this);closeMenu()">🏠 Home</button>
-  <button class="mobile-tab" onclick="showTab('movies',this);closeMenu()">🎬 Movies</button>
-  <button class="mobile-tab" onclick="showTab('tvshows',this);closeMenu()">📺 TV Shows</button>
-  <button class="mobile-tab" onclick="showTab('netflix',this);closeMenu()">N Netflix</button>
+  <button class="mobile-tab" onclick="showTab('movies',this);closeMenu()">🎬 TavFlix</button>
+  <button class="mobile-tab" onclick="showTab('tvshows',this);closeMenu()">📺 TavStream</button>
+  <button class="mobile-tab" onclick="showTab('naija',this);closeMenu()">🇳🇬 TavNaija</button>
+  <button class="mobile-tab" onclick="showTab('anime',this);closeMenu()">🎌 TavAnime</button>
+  <button class="mobile-tab" onclick="showTab('music',this);closeMenu()">🎵 TavBeats</button>
   <button class="mobile-tab" onclick="showTab('trending',this);closeMenu()">🔥 Trending</button>
-  <button class="mobile-tab" onclick="showTab('anime',this);closeMenu()">🎌 Anime</button>
   <button class="mobile-tab" onclick="showTab('privacy',this);closeMenu()">🔒 Privacy Policy</button>
 </div>
 
@@ -299,8 +314,6 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 
 <!-- MAIN -->
 <main id="mainContent">
-
-  <div class="ad-slot ad-banner" id="adTop">AD · 728×90</div>
 
   <!-- SEARCH -->
   <div class="section search-section" id="searchSection">
@@ -328,10 +341,10 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     </div>
   </div>
 
-  <!-- POPULAR MOVIES -->
+  <!-- TAVFLIX — POPULAR MOVIES -->
   <div class="section" id="popularSection">
     <div class="section-header">
-      <div class="section-title"><span class="dot"></span> 🎬 Popular Movies</div>
+      <div class="section-title"><span class="dot"></span> 🎬 TavFlix</div>
       <button class="see-all" onclick="loadMore('popular')">Load More →</button>
     </div>
     <div class="movie-grid" id="popularGrid">
@@ -340,12 +353,10 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     </div>
   </div>
 
-  <div class="ad-slot ad-square" id="adMid">AD · 300×250</div>
-
-  <!-- TV SHOWS -->
+  <!-- TAVSTREAM — TV SHOWS -->
   <div class="section" id="tvSection">
     <div class="section-header">
-      <div class="section-title"><span class="dot" style="background:var(--green)"></span> 📺 Popular TV Shows</div>
+      <div class="section-title"><span class="dot" style="background:var(--green)"></span> 📺 TavStream</div>
       <button class="see-all" onclick="loadMore('tv')">Load More →</button>
     </div>
     <div class="movie-grid" id="tvGrid">
@@ -366,10 +377,70 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     </div>
   </div>
 
-  <!-- ANIME SECTION -->
+  <!-- TAVNAIJA — NOLLYWOOD -->
+  <div class="section" id="naijaSection" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="dot" style="background:#008751"></span> 🇳🇬 TavNaija</div>
+      <button class="see-all" onclick="loadMore('naija')">Load More →</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Nigerian & African movies — Nollywood 🎬</p>
+
+    <!-- YouTube Nollywood Playlist -->
+    <div style="margin-bottom:32px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">▶ FREE NOLLYWOOD ON YOUTUBE</div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;background:#000">
+        <iframe src="https://www.youtube.com/embed/videoseries?list=PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL&autoplay=0"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:14px"
+          allowfullscreen allow="autoplay;fullscreen;encrypted-media"></iframe>
+      </div>
+    </div>
+
+    <!-- TMDB Nollywood Movies -->
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">🎬 NOLLYWOOD MOVIES</div>
+    <div class="movie-grid" id="naijaGrid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+  </div>
+
+  <!-- TAVBEATS — MUSIC -->
+  <div class="section" id="musicSection" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="dot" style="background:#ff6b9d"></span> 🎵 TavBeats</div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px">Nigerian music — Afrobeats, Afropop & more 🔥</p>
+
+    <!-- Music Genre Filters -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px" id="musicFilters">
+      <button class="anime-filter-btn active" onclick="loadMusicPlaylist('afrobeats',this)">🔥 Afrobeats</button>
+      <button class="anime-filter-btn" onclick="loadMusicPlaylist('naija',this)">🇳🇬 Naija Hits</button>
+      <button class="anime-filter-btn" onclick="loadMusicPlaylist('amapiano',this)">🎹 Amapiano</button>
+      <button class="anime-filter-btn" onclick="loadMusicPlaylist('afropop',this)">🎤 Afropop</button>
+      <button class="anime-filter-btn" onclick="loadMusicPlaylist('gospel',this)">🙏 Gospel</button>
+      <button class="anime-filter-btn" onclick="loadMusicPlaylist('highlife',this)">🎸 Highlife</button>
+    </div>
+
+    <!-- Music Player -->
+    <div id="musicPlayer" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;background:#000">
+      <iframe id="musicIframe"
+        src="https://www.youtube.com/embed/videoseries?list=PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL&autoplay=0"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:14px"
+        allowfullscreen allow="autoplay;fullscreen;encrypted-media"></iframe>
+    </div>
+
+    <!-- Music info -->
+    <div style="margin-top:16px;padding:14px;background:var(--surface);border-radius:10px;border:1px solid var(--border)">
+      <p style="font-size:12px;color:var(--muted);line-height:1.7">
+        🎵 <strong style="color:var(--text)">TavBeats</strong> — Stream the best Nigerian & African music. Powered by YouTube.
+        Switch between genres using the buttons above!
+      </p>
+    </div>
+  </div>
+
+  <!-- TAVANIME -->
   <div class="section" id="animeSection" style="display:none">
     <div class="section-header">
-      <div class="section-title"><span class="dot" style="background:#ff6b9d"></span> 🎌 Anime</div>
+      <div class="section-title"><span class="dot" style="background:#ff6b9d"></span> 🎌 TavAnime</div>
     </div>
     <!-- Anime Filter Tabs -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px" id="animeFilters">
@@ -395,7 +466,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </div>
     <div style="text-align:center;margin-top:20px">
-      <button class="see-all" onclick="loadMoreAnime()" style="padding:10px 24px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Load More Anime →</button>
+      <button class="see-all" onclick="loadMoreAnime()" style="padding:10px 24px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Load More →</button>
     </div>
   </div>
 
@@ -745,16 +816,83 @@ async function openItem(id,type='movie'){
 }
 
 // ── PLAYER ──
-function blockPopups(){
-  if(window._popupBlocked)return;
-  window._popupBlocked=true;
-  const orig=window.open;
+// ── NUCLEAR AD & POPUP BLOCKER ── runs immediately, forever
+(function(){
+  // 1. Block ALL window.open calls from ads
+  const _origOpen=window.open;
   window.open=function(url,...a){
     if(!url)return null;
-    const bad=['ad.','ads.','pop','click','redirect','track','banner','promo','doubleclick','googlesyndication','exo','advert'];
+    const bad=['ad','pop','click','track','banner','promo','casino','bet','adult','xxx','porn','redirect','doubleclick','googlesyndication','exo','advert','sponsor','offer','deal','prize','win','lottery','viagra','pills','dating'];
     if(bad.some(b=>url.toLowerCase().includes(b)))return null;
-    return orig.call(window,url,...a);
+    // Only allow known safe domains
+    const safe=['youtube.com','google.com','imdb.com','anilist.co','netflix.com','tubitv.com','pluto.tv','vercel.app','github.com'];
+    if(safe.some(s=>url.toLowerCase().includes(s)))return _origOpen(url,...a);
+    // Block everything else that opens in new window
+    return null;
   };
+
+  // 2. Block document.write (ad injection technique)
+  document.write=function(){};
+  document.writeln=function(){};
+
+  // 3. Intercept all new elements being added — block ad scripts/iframes
+  const _origCreate=document.createElement.bind(document);
+  document.createElement=function(tag){
+    const el=_origCreate(tag);
+    if(tag.toLowerCase()==='script'){
+      const _origSetAttr=el.setAttribute.bind(el);
+      el.setAttribute=function(name,val){
+        if(name==='src'){
+          const bad=['ad','pop','track','banner','doubleclick','googlesyndication','exo','adnxs','outbrain','taboola','mgid','revcontent','propeller','popcash','popads','adsterra','hilltopads'];
+          if(bad.some(b=>val.toLowerCase().includes(b)))return;
+        }
+        return _origSetAttr(name,val);
+      };
+    }
+    return el;
+  };
+
+  // 4. Watch for new iframes being injected and remove ad ones
+  const observer=new MutationObserver(mutations=>{
+    mutations.forEach(m=>{
+      m.addedNodes.forEach(node=>{
+        if(node.tagName==='IFRAME'||node.tagName==='SCRIPT'){
+          const src=node.src||node.getAttribute?.('src')||'';
+          const bad=['ad','pop','track','banner','doubleclick','googlesyndication','exo','adnxs','outbrain','taboola','mgid','casino','bet','adult'];
+          if(bad.some(b=>src.toLowerCase().includes(b))){
+            node.remove();
+          }
+        }
+        // Also check children
+        node.querySelectorAll?.('iframe,script').forEach(el=>{
+          const src=el.src||'';
+          const bad=['ad','pop','track','banner','doubleclick','exo','adnxs','outbrain','taboola'];
+          if(bad.some(b=>src.toLowerCase().includes(b)))el.remove();
+        });
+      });
+    });
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+
+  // 5. Block visibility/focus tricks used by popunders
+  document.addEventListener('visibilitychange',e=>e.stopImmediatePropagation(),true);
+  window.addEventListener('blur',e=>e.stopImmediatePropagation(),true);
+  window.addEventListener('focus',e=>e.stopImmediatePropagation(),true);
+
+  // 6. Override setTimeout/setInterval used by delayed popups
+  const _origTimeout=window.setTimeout;
+  window.setTimeout=function(fn,delay,...a){
+    if(typeof fn==='string')return; // Block eval-based delayed ads
+    return _origTimeout(fn,delay,...a);
+  };
+
+  console.log('🛡️ TAVIK Ad Blocker Active');
+})();
+
+function blockPopups(){
+  // Already handled above — this is just for compatibility
+  if(window._popupBlocked)return;
+  window._popupBlocked=true;
 }
 
 // ── AUTO FALLBACK PLAYER ──
@@ -933,8 +1071,7 @@ function handleSearch(val){
     document.getElementById('searchSection').style.display='none';
     return;
   }
-  // Show all sections so search appears at top
-  ['trendingSection','popularSection','tvSection','netflixSection','adTop','adMid','footerEl'].forEach(id=>{
+  ['trendingSection','popularSection','tvSection','netflixSection','footerEl'].forEach(id=>{
     const e=document.getElementById(id);if(e)e.style.display='block';
   });
   document.getElementById('heroSection').style.display='none';
@@ -954,7 +1091,7 @@ function showTab(tab,btn){
   document.querySelectorAll('.nav-tab,.mobile-tab').forEach(t=>t.classList.remove('active'));
   if(btn)btn.classList.add('active');
 
-  const allSections=['heroSection','trendingSection','popularSection','tvSection','netflixSection','animeSection','adTop','adMid','footerEl'];
+  const allSections=['heroSection','trendingSection','popularSection','tvSection','netflixSection','animeSection','naijaSection','musicSection','footerEl'];
   allSections.forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('privacyPage').classList.remove('show');
   document.getElementById('searchSection').classList.remove('active');
@@ -965,15 +1102,44 @@ function showTab(tab,btn){
 
   if(tab==='home'){
     document.getElementById('heroSection').style.display='flex';
-    show('trendingSection','popularSection','tvSection','netflixSection','adTop','adMid','footerEl');
-  }else if(tab==='movies')show('popularSection','adTop','footerEl');
-  else if(tab==='tvshows')show('tvSection','adTop','footerEl');
-  else if(tab==='netflix')show('netflixSection','adTop','footerEl');
-  else if(tab==='trending')show('trendingSection','adTop','footerEl');
+    show('trendingSection','popularSection','tvSection','netflixSection','footerEl');
+  }else if(tab==='movies')show('popularSection','footerEl');
+  else if(tab==='tvshows')show('tvSection','footerEl');
+  else if(tab==='netflix')show('netflixSection','footerEl');
+  else if(tab==='trending')show('trendingSection','footerEl');
+  else if(tab==='naija'){show('naijaSection','footerEl');fetchNollywood();}
+  else if(tab==='music'){show('musicSection','footerEl');loadMusicPlaylist('afrobeats',document.querySelector('.anime-filter-btn'));}
   else if(tab==='anime'){show('animeSection','footerEl');loadAnime('trending',document.querySelector('.anime-filter-btn'));}
   else if(tab==='privacy'){document.getElementById('privacyPage').classList.add('show');show('footerEl');}
 
   if(tab!=='home')window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── NOLLYWOOD ──
+async function fetchNollywood(page=1){
+  // Fetch Nigerian movies from TMDB using Nigeria region
+  const d=await api(`/discover/movie?with_original_language=en&region=NG&sort_by=popularity.desc&page=${page}`);
+  const d2=await api(`/search/movie?query=nollywood&page=${page}`);
+  const combined=[...(d.results||[]),...(d2.results||[])].filter((m,i,a)=>a.findIndex(x=>x.id===m.id)===i).slice(0,16);
+  render(combined,'naijaGrid',page>1);
+}
+
+// ── MUSIC PLAYLISTS ──
+const MUSIC_PLAYLISTS={
+  afrobeats:'PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL',
+  naija:'PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL',
+  amapiano:'PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL',
+  afropop:'PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL',
+  gospel:'PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL',
+  highlife:'PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL',
+};
+
+function loadMusicPlaylist(genre,btn){
+  document.querySelectorAll('#musicFilters .anime-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const playlistId=MUSIC_PLAYLISTS[genre]||MUSIC_PLAYLISTS.afrobeats;
+  const iframe=document.getElementById('musicIframe');
+  if(iframe)iframe.src=`https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=0`;
 }
 
 // ── LOAD MORE ──
@@ -983,6 +1149,8 @@ function loadMore(type){
   if(type==='popular')fetchPopular(pages[type]);
   if(type==='tv')fetchTV(pages[type]);
   if(type==='netflix')fetchNetflix(pages[type]);
+  if(type==='naija')fetchNollywood(pages[type]);
+}
   showToast('Loading more...');
 }
 
