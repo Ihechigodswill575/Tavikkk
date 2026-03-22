@@ -349,14 +349,57 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 @media(max-width:900px){
   .nav-tabs{display:none!important}
   .bottom-nav{display:block!important}
-  main{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
-  footer{margin-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
-  .hero{padding:0 20px 60px}
-  .search-input{width:140px}
-  .search-input:focus{width:180px}
+  main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
+  footer{margin-bottom:calc(62px + env(safe-area-inset-bottom,0px))}
+  nav{padding:0 12px;gap:6px;height:58px}
+  main{padding-top:70px}
+  .hero{padding:0 16px 56px;min-height:70vh}
+  .modal-body{padding:16px 14px 28px}
+  .modal{max-height:94vh}
+  .hero-stats{display:none}
+}
+@media(max-width:480px){
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+  .hero-title{font-size:40px;letter-spacing:1px}
+  .hero-desc{font-size:13px}
+  .modal-title{font-size:24px}
+  nav{height:54px;padding:0 10px}
+  .logo{font-size:20px}
+  .search-input{width:110px;font-size:12px}
+  .search-input:focus{width:150px}
+  .nav-signin-btn{padding:6px 10px;font-size:11px}
+  .chips{gap:5px}
+  .chip{font-size:9px;padding:3px 7px}
+  .cast-grid{grid-template-columns:repeat(auto-fill,minmax(58px,1fr))}
+  .cast-avatar{width:44px;height:44px}
+  footer{padding:16px 12px 12px}
+  .footer-grid{grid-template-columns:1fr;gap:12px}
+}
+@media(max-width:360px){
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+  .hero-title{font-size:34px}
+  .modal-title{font-size:20px}
+  .logo{font-size:18px}
+  .search-input{width:90px}
+  .search-input:focus{width:120px}
+  .bnav-btn span{font-size:8px}
 }
 @media(max-width:600px){
   .movie-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .hero-title{font-size:46px}
+  .modal-body{padding:16px 16px 24px}
+}
+@media(orientation:landscape) and (max-height:500px){
+  .hero{min-height:auto;padding:8px 16px 30px}
+  .hero-title{font-size:28px}
+  .hero-desc{display:none}
+  nav{height:48px}
+  main{padding-top:55px}
+}
+@media(min-width:1200px){
+  main{max-width:1400px;margin:0 auto;padding:80px 48px 60px}
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}
+}
   .hero-title{font-size:46px}
   .modal-body{padding:16px 16px 24px}
 }
@@ -1438,6 +1481,10 @@ function showTab(tab,btn){
     document.getElementById('profilePage').classList.add('show');
     show('footerEl');
     renderProfile();
+    // If not signed in, open auth after short delay
+    if(!window._user){
+      setTimeout(()=>openAuth(),300);
+    }
   }
 
   if(tab!=='home')window.scrollTo({top:0,behavior:'smooth'});
@@ -2074,8 +2121,11 @@ async function doEmailSignIn(){
   const btn=document.getElementById('inBtn');
   if(btn){btn.disabled=true;btn.textContent='Signing in...';}
   try{
-    await window._fb.signInEmail(e,p);
-    closeAuth();showToast('Welcome back! 👋');
+    const cred2=await window._fb.signInEmail(e,p);
+    window._user=cred2.user;
+    closeAuth();
+    onAuthChange(cred2.user);
+    showToast('Welcome back! 👋');
   }catch(err){
     const msgs={
       'auth/user-not-found':'No account found with this email. Create one free →',
@@ -2104,8 +2154,11 @@ async function doEmailSignUp(){
   try{
     const cred=await window._fb.signUpEmail(e,p);
     await window._fb.updateProfile(cred.user,{displayName:name});
+    cred.user.displayName=name;
     window._user=cred.user;
-    closeAuth();showToast('Welcome to TAVIK! 🎬');
+    closeAuth();
+    onAuthChange(cred.user);
+    showToast('Welcome to TAVIK! 🎬');
   }catch(err){
     const msgs={'auth/email-already-in-use':'Email already registered','auth/invalid-email':'Invalid email','auth/weak-password':'Password too weak'};
     showAuthErr(msgs[err.code]||'Sign up failed. Try again.');
@@ -2134,8 +2187,11 @@ function onAuthChange(user){
       const old=bpBtn.querySelector('svg')||bpBtn.querySelector('div[style]');
       if(old)old.outerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;font-family:'DM Sans',sans-serif">${init}</div>`;
     }
-    // If profile page is open, refresh it
-    if(document.getElementById('profilePage')?.classList.contains('show'))renderProfile();
+    // Always refresh profile if visible
+    setTimeout(()=>{
+      if(document.getElementById('profilePage')?.classList.contains('show'))renderProfile();
+      else renderProfile(); // pre-render for next open
+    },100);
   }else{
     area.innerHTML=`<button class="nav-signin-btn" onclick="openAuth()">Sign In</button>`;
     // Reset profile icon
@@ -2213,12 +2269,18 @@ function renderProfile(){
   if(!el)return;
   const user=window._user;
   if(!user){
-    el.innerHTML=`<div style="text-align:center;padding:60px 20px">
-      <div style="font-size:56px;margin-bottom:16px">👤</div>
-      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:8px">Sign In to TAVIK</h3>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Save your watchlist across all devices</p>
-      <button onclick="openAuth()" style="padding:13px 28px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
-      <p style="margin-top:12px;font-size:13px;color:var(--muted)">No account? <span onclick="openAuth('up')" style="color:var(--accent);cursor:pointer">Create one free</span></p>
+    el.innerHTML=`
+    <div style="text-align:center;padding:48px 20px 32px">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px">👤</div>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:6px">Welcome to TAVIK</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.6">Sign in to save your watchlist,<br>track what you've watched, and more.</p>
+      <button onclick="openAuth('up')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">Create Free Account</button>
+      <button onclick="openAuth('in')" style="width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:16px">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px"><span>♥</span><span>Watchlist synced across devices</span></div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px"><span>▶</span><span>Continue watching where you left off</span></div>
+      <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px"><span>⭐</span><span>Rate & review movies</span></div>
     </div>`;
     return;
   }
@@ -2269,11 +2331,20 @@ function applyLayout(){
   const mobile=window.innerWidth<=900;
   const nav=document.getElementById('bottomNav');
   const tabs=document.querySelector('.nav-tabs');
+  const burger=document.getElementById('menuBtn');
   if(nav)nav.style.display=mobile?'block':'none';
   if(tabs)tabs.style.display=mobile?'none':'flex';
+  if(burger)burger.style.display=mobile?'flex':'none';
+  // Add safe area padding to body for notch phones
+  if(mobile){
+    document.body.style.paddingBottom='env(safe-area-inset-bottom,0px)';
+  } else {
+    document.body.style.paddingBottom='';
+  }
 }
 applyLayout();
 window.addEventListener('resize',applyLayout);
+window.addEventListener('orientationchange',()=>setTimeout(applyLayout,300));
 setTimeout(applyLayout,50);
 setTimeout(applyLayout,500);
 
