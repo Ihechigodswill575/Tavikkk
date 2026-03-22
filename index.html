@@ -9,19 +9,18 @@
 <meta name="author" content="Tavikk">
 <!-- Firebase -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  const app = initializeApp({
-    apiKey:"AIzaSyBzUELxbbaL6Wb_M1uNhjwlZHVTorN9XJs",
-    authDomain:"my-whatsapp-2c1af.firebaseapp.com",
-    databaseURL:"https://my-whatsapp-2c1af-default-rtdb.firebaseio.com",
-    projectId:"my-whatsapp-2c1af",
-    storageBucket:"my-whatsapp-2c1af.firebasestorage.app",
-    messagingSenderId:"1089455460888",
-    appId:"1:1089455460888:web:15bd0820546c813febe96d"
-  });
-  const db=getDatabase(app);
-  window._fbDb=db;window._fbRef=ref;window._fbPush=push;window._fbOnValue=onValue;window._fbReady=true;
+  import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import{getDatabase,ref,push,onValue,set,get,remove}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import{getAuth,onAuthStateChanged,signInWithPopup,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,GoogleAuthProvider,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const app=initializeApp({apiKey:"AIzaSyBzUELxbbaL6Wb_M1uNhjwlZHVTorN9XJs",authDomain:"my-whatsapp-2c1af.firebaseapp.com",databaseURL:"https://my-whatsapp-2c1af-default-rtdb.firebaseio.com",projectId:"my-whatsapp-2c1af",storageBucket:"my-whatsapp-2c1af.firebasestorage.app",messagingSenderId:"1089455460888",appId:"1:1089455460888:web:15bd0820546c813febe96d"});
+  const db=getDatabase(app);const auth=getAuth(app);const gp=new GoogleAuthProvider();
+  window._fb={db,ref,push,onValue,set,get,remove,auth,gp,ready:true,
+    signInGoogle:()=>signInWithPopup(auth,gp),
+    signInEmail:(e,p)=>signInWithEmailAndPassword(auth,e,p),
+    signUpEmail:(e,p)=>createUserWithEmailAndPassword(auth,e,p),
+    signOut:()=>signOut(auth),
+    updateProfile:(u,d)=>updateProfile(u,d)};
+  onAuthStateChanged(auth,u=>{window._user=u||null;try{onAuthChange(u);}catch(e){}});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -65,8 +64,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 /* ── HERO — Netflix Style ── */
 .hero{height:100vh;min-height:500px;position:relative;display:flex;align-items:flex-end;padding:0 48px 80px;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0a0f1a,#1a0808 50%,#080b0f)}
-.hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(229,9,20,0.12),transparent 70%),radial-gradient(ellipse 40% 40% at 20% 70%,rgba(255,107,53,0.08),transparent 60%)}
+.hero-bg{position:absolute;inset:0;background:#000}
+.hero-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;will-change:opacity}
+.hero-backdrop.active{opacity:0.55}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,11,15,0.95) 0%,rgba(8,11,15,0.6) 50%,rgba(8,11,15,0.1) 100%),linear-gradient(to top,rgba(8,11,15,1) 0%,rgba(8,11,15,0.4) 40%,transparent 70%)}
+.hero-dots{position:absolute;bottom:24px;right:48px;z-index:3;display:flex;gap:6px}
+.hero-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.3);cursor:pointer;transition:all 0.3s;border:none}
+.hero-dot.active{width:20px;background:var(--accent)}
 .hero-content{position:relative;z-index:2;max-width:600px;animation:fadeUp 0.8s ease both}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.25);border-radius:6px;padding:5px 12px;font-size:11px;font-family:'Space Mono',monospace;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:20px}
 .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,96px);line-height:0.92;letter-spacing:2px;margin-bottom:20px}
@@ -112,7 +116,7 @@ main{padding:80px 48px 60px}
 .badge-tv{position:absolute;top:8px;right:8px;background:rgba(33,208,122,0.2);color:var(--green);border:1px solid rgba(33,208,122,0.3);font-size:8px;font-family:'Space Mono',monospace;padding:2px 6px;border-radius:4px}
 
 /* ── SEARCH ── */
-.search-section{display:none!important}
+.search-section{display:none}
 .search-section.active{display:block}
 
 /* ── SKELETON ── */
@@ -261,14 +265,79 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   .player-btn{font-size:10px;padding:5px 10px}
 }
 
+/* ── AUTH ── */
+.auth-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.auth-overlay.open{opacity:1;pointer-events:all}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:28px 24px 40px;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-height:95vh;overflow-y:auto}
+.auth-overlay.open .auth-box{transform:translateY(0)}
+.auth-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.auth-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;text-align:center}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px}
+.auth-google-btn{width:100%;padding:14px;background:white;color:#333;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;margin-bottom:16px}
+.auth-google-btn:hover{background:#f0f0f0}
+.auth-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin-bottom:16px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-tabs{display:flex;gap:4px;background:var(--surface);border-radius:10px;padding:4px;margin-bottom:16px}
+.auth-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-radius:7px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.auth-tab.active{background:var(--accent);color:white}
+.auth-field{margin-bottom:12px}
+.auth-field label{display:block;font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase}
+.auth-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s}
+.auth-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(229,9,20,0.1)}
+.auth-submit{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:4px}
+.auth-submit:hover{background:#c4070f}
+.auth-submit:disabled{opacity:0.6;cursor:not-allowed}
+.auth-err{background:rgba(229,9,20,0.1);border:1px solid rgba(229,9,20,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#ff8080;margin-bottom:12px;display:none}
+.auth-err.show{display:block}
+/* ── PROFILE PAGE ── */
+.profile-page{display:none;max-width:600px;margin:0 auto}
+.profile-page.show{display:block}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;color:white;margin:0 auto 12px;border:3px solid rgba(229,9,20,0.3)}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;text-align:center;margin-bottom:4px}
+.profile-email{font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px}
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.profile-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.2s}
+.profile-row:last-child{border-bottom:none}
+.profile-row:hover{background:var(--hover)}
+.profile-row-left{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500}
+.profile-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.profile-signout{width:100%;padding:13px;background:rgba(229,9,20,0.1);color:var(--accent);border:1px solid rgba(229,9,20,0.2);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:8px}
+.profile-signout:hover{background:var(--accent);color:white}
+/* ── WATCHLIST ── */
+.watchlist-page{display:none}
+.watchlist-page.show{display:block}
+.wl-empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.wl-empty .wl-icon{font-size:56px;margin-bottom:16px}
+.wl-empty h3{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);margin-bottom:8px}
+/* ── HEART ── */
+.heart-btn{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.65);border:none;color:rgba(255,255,255,0.7);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;backdrop-filter:blur(4px);transition:all 0.2s;-webkit-tap-highlight-color:transparent}
+.heart-btn.saved{color:#ff4d6d}
+/* ── NAV AUTH ── */
+.nav-signin-btn{padding:7px 14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0}
+.nav-signin-btn:hover{background:#c4070f}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;cursor:pointer;border:2px solid rgba(229,9,20,0.4);font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.2s}
 /* ── BOTTOM NAV ── */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(8,11,15,0.98);border-top:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);padding-bottom:env(safe-area-inset-bottom,0px)}
-.bnav-inner{display:flex;align-items:center;justify-content:space-around;height:58px}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;padding:6px 0;-webkit-tap-highlight-color:transparent}
-.bnav-btn svg{width:22px;height:22px}
+.bnav-inner{display:flex;align-items:center;justify-content:space-around;height:60px}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;color:rgba(255,255,255,0.35);cursor:pointer;padding:6px 0;-webkit-tap-highlight-color:transparent;transition:color 0.2s}
+.bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .bnav-btn span{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-family:'DM Sans',sans-serif}
 .bnav-btn.active{color:#e50914}
-.bnav-btn.active svg{filter:drop-shadow(0 0 4px rgba(229,9,20,0.6))}
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .nav-tabs{display:none!important}
+  .bottom-nav{display:block!important}
+  main{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+  footer{margin-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
+  .hero{padding:0 20px 60px}
+  .search-input{width:140px}
+  .search-input:focus{width:180px}
+}
+@media(max-width:600px){
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .hero-title{font-size:46px}
+  .modal-body{padding:16px 16px 24px}
+}
 
 </style>
 </head>
@@ -298,6 +367,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
       <span class="search-icon">🔍</span>
       <input class="search-input" type="text" placeholder="Search..." id="searchInput" oninput="handleSearch(this.value)">
     </div>
+    <div id="navAuthArea"><button class="nav-signin-btn" onclick="openAuth()">Sign In</button></div>
     <button class="hamburger" onclick="toggleMenu()" id="menuBtn">☰</button>
   </div>
 </nav>
@@ -316,14 +386,18 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 
 <!-- HERO -->
 <div class="hero" id="heroSection">
-  <div class="hero-bg"></div>
-  <div class="hero-content">
-    <div class="hero-badge">🎬 Movies · TV · Streaming</div>
-    <h1 class="hero-title">DISCOVER<br><span class="red">EVERY FILM</span><br>EVER MADE</h1>
-    <p class="hero-desc">Browse trending movies & TV shows, stream, rate and review everything — all in one place.</p>
+  <div class="hero-bg">
+    <img id="heroBg1" class="hero-backdrop active" src="" alt="">
+    <img id="heroBg2" class="hero-backdrop" src="" alt="">
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-content" id="heroContent">
+    <div class="hero-badge" id="heroBadge">🔥 TRENDING</div>
+    <h1 class="hero-title" id="heroTitle">DISCOVER<br><span class="red">EVERY FILM</span><br>EVER MADE</h1>
+    <p class="hero-desc" id="heroDesc">Browse trending movies & TV shows, stream, rate and review everything.</p>
     <div class="hero-btns">
-      <button class="btn-red" onclick="document.getElementById('mainContent').scrollIntoView({behavior:'smooth'})">Browse Now</button>
-      <button class="btn-ghost" onclick="showTab('tvshows')">TV Shows</button>
+      <button class="btn-red" id="heroPlayBtn" onclick="heroPlay()">▶ Play Now</button>
+      <button class="btn-ghost" id="heroInfoBtn" onclick="heroInfo()">ℹ More Info</button>
     </div>
   </div>
   <div class="hero-stats">
@@ -331,6 +405,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     <div><div class="stat-num">TV</div><div class="stat-label">Shows</div></div>
     <div><div class="stat-num">FREE</div><div class="stat-label">Always</div></div>
   </div>
+  <div class="hero-dots" id="heroDots"></div>
 </div>
 
 <!-- MAIN -->
@@ -360,6 +435,26 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </div>
+  </div>
+
+
+  <!-- TOP 10 NIGERIA -->
+  <div class="section" id="top10Section">
+    <div class="section-header">
+      <div class="section-title"><span class="dot" style="background:var(--gold)"></span> 🇳🇬 Top 10 in Nigeria Today</div>
+    </div>
+    <div class="movie-grid" id="top10Grid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+  </div>
+
+  <!-- CONTINUE WATCHING -->
+  <div class="section" id="continueSection" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="dot" style="background:var(--green)"></span> ▶ Continue Watching</div>
+      <button class="see-all" onclick="clearContinue()">Clear</button>
+    </div>
+    <div class="movie-grid" id="continueGrid"></div>
   </div>
 
   <!-- TAVFLIX — POPULAR MOVIES -->
@@ -491,6 +586,22 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     </div>
   </div>
 
+  <!-- WATCHLIST PAGE -->
+  <div class="watchlist-page" id="watchlistPage">
+    <div class="section-header">
+      <div class="section-title"><span class="dot" style="background:#ff4d6d"></span> ♥ My Watchlist</div>
+    </div>
+    <div class="movie-grid" id="watchlistGrid"></div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="profile-page" id="profilePage">
+    <div class="section-header">
+      <div class="section-title"><span class="dot"></span> My Profile</div>
+    </div>
+    <div id="profileContent"></div>
+  </div>
+
   <!-- PRIVACY -->
   <div class="privacy-page" id="privacyPage">
     <h1>Privacy Policy</h1>
@@ -591,26 +702,33 @@ async function api(ep){
 }
 
 // ── CARD ──
-function card(m,netflix=false,tv=false,delay=0){
+function card(m,netflix=false,tv=false,delay=0,rank=0){
   const isTV=tv||m.media_type==='tv';
   const type=isTV?'tv':'movie';
   const title=m.title||m.name||'Unknown';
+  const safeTitle=title.replace(/'/g,"\\'");
   const year=(m.release_date||m.first_air_date||'').slice(0,4)||'—';
   const rating=m.vote_average?m.vote_average.toFixed(1):'—';
-  const saved=ratings[m.id]||0;
-  const stars=[1,2,3,4,5].map(s=>`<span class="star ${saved>=s?'on':''}">${saved>=s?'★':'☆'}</span>`).join('');
+  const isSaved=!!_watchlist[m.id];
+  // Continue watching progress
+  const progress=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+  const prog=progress[m.id];
+  const progressBar=prog?`<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.1)"><div style="height:100%;width:${prog}%;background:var(--accent);border-radius:0 0 0 0"></div></div>`:'';
   const poster=m.poster_path
     ?`<img class="movie-poster" src="${IMG}${m.poster_path}" alt="${title}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>${isTV?'📺':'🎬'}</div>'">`
     :`<div class="no-poster">${isTV?'📺':'🎬'}</div>`;
-  return `<div class="movie-card" style="animation-delay:${delay*0.04}s" onclick="openItem(${m.id},'${type}')">
+  // Rank badge for top 10
+  const rankBadge=rank?`<div style="position:absolute;bottom:-4px;left:4px;font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;color:rgba(255,255,255,0.07);z-index:0;pointer-events:none">${rank}</div>`:'';
+  return `<div class="movie-card" style="animation-delay:${delay*0.04}s;position:relative" onclick="openItem(${m.id},'${type}')">
     ${netflix?'<div class="badge-netflix">N</div>':''}
     ${isTV&&!netflix?'<div class="badge-tv">TV</div>':''}
+    <button class="heart-btn ${isSaved?'saved':''}" data-id="${m.id}" onclick="toggleWatchlist('${m.id}','${type}','${safeTitle}','${m.poster_path||''}','${year}','${rating}',event)">${isSaved?'♥':'♡'}</button>
     ${poster}
-    <div class="movie-info">
+    ${progressBar}
+    ${rankBadge}
+    <div class="movie-info" style="position:relative;z-index:1">
       <div class="movie-title">${title}</div>
-      <div class="movie-meta"><span class="movie-year">${year}</span><span class="movie-rating">⭐${rating}</span></div>
-      <div class="star-row">${stars}</div>
-      <div class="rate-label">${saved?'Rated: '+saved+'/5':'Tap to rate'}</div>
+      <div class="movie-meta"><span class="movie-year">${year}</span><span class="movie-rating" style="color:var(--gold)">⭐${rating}</span></div>
     </div>
   </div>`;
 }
@@ -1204,9 +1322,11 @@ function showTab(tab,btn){
   document.querySelectorAll('.nav-tab,.mobile-tab').forEach(t=>t.classList.remove('active'));
   if(btn)btn.classList.add('active');
 
-  const allSections=['heroSection','trendingSection','popularSection','tvSection','netflixSection','animeSection','naijaSection','musicSection','footerEl'];
+  const allSections=['heroSection','trendingSection','top10Section','continueSection','popularSection','tvSection','netflixSection','animeSection','naijaSection','musicSection','footerEl'];
   allSections.forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('privacyPage').classList.remove('show');
+  document.getElementById('watchlistPage').classList.remove('show');
+  document.getElementById('profilePage').classList.remove('show');
   document.getElementById('searchSection').classList.remove('active');
   document.getElementById('searchSection').style.display='none';
   document.getElementById('searchInput').value='';
@@ -1215,7 +1335,7 @@ function showTab(tab,btn){
 
   if(tab==='home'){
     document.getElementById('heroSection').style.display='flex';
-    show('trendingSection','popularSection','tvSection','netflixSection','footerEl');
+    show('trendingSection','top10Section','continueSection','popularSection','tvSection','netflixSection','footerEl');renderContinueWatching();
   }else if(tab==='movies')show('popularSection','footerEl');
   else if(tab==='tvshows')show('tvSection','footerEl');
   else if(tab==='netflix')show('netflixSection','footerEl');
@@ -1224,6 +1344,17 @@ function showTab(tab,btn){
   else if(tab==='music'){show('musicSection','footerEl');loadMusicPlaylist('afrobeats',document.querySelector('.anime-filter-btn'));}
   else if(tab==='anime'){show('animeSection','footerEl');loadAnime('trending',document.querySelector('.anime-filter-btn'));}
   else if(tab==='privacy'){document.getElementById('privacyPage').classList.add('show');show('footerEl');}
+  else if(tab==='watchlist'){
+    if(!window._user){openAuth();return;}
+    document.getElementById('watchlistPage').classList.add('show');
+    show('footerEl');
+    renderWatchlist();
+  }
+  else if(tab==='profile'){
+    document.getElementById('profilePage').classList.add('show');
+    show('footerEl');
+    renderProfile();
+  }
 
   if(tab!=='home')window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1796,61 +1927,472 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── INIT ──
 fetchTrending();fetchPopular();fetchTV();fetchNetflix();
 
+// ── AUTH ──
+let _watchlist={};
+
+function openAuth(tab='in'){
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  switchAuthTab(tab);
+  clearAuthErr();
+}
+function closeAuth(){
+  document.getElementById('authOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function switchAuthTab(t){
+  document.getElementById('authFormIn').style.display=t==='in'?'block':'none';
+  document.getElementById('authFormUp').style.display=t==='up'?'block':'none';
+  document.getElementById('authTabIn').classList.toggle('active',t==='in');
+  document.getElementById('authTabUp').classList.toggle('active',t==='up');
+  clearAuthErr();
+}
+function showAuthErr(msg){const e=document.getElementById('authErr');if(e){e.textContent=msg;e.classList.add('show');}}
+function clearAuthErr(){const e=document.getElementById('authErr');if(e){e.textContent='';e.classList.remove('show');}}
+
+async function doGoogleSignIn(){
+  if(!window._fb){showAuthErr('Loading... try again');return;}
+  try{
+    await window._fb.signInGoogle();
+    closeAuth();
+    showToast('Welcome! 👋');
+  }catch(e){
+    if(e.code!=='auth/popup-closed-by-user')showAuthErr('Google sign-in failed. Try email.');
+  }
+}
+
+async function doEmailSignIn(){
+  const e=document.getElementById('inEmail')?.value.trim();
+  const p=document.getElementById('inPass')?.value;
+  if(!e||!p){showAuthErr('Fill in all fields');return;}
+  const btn=document.getElementById('inBtn');
+  if(btn){btn.disabled=true;btn.textContent='Signing in...';}
+  try{
+    await window._fb.signInEmail(e,p);
+    closeAuth();showToast('Welcome back! 👋');
+  }catch(err){
+    const msgs={'auth/user-not-found':'No account with this email','auth/wrong-password':'Incorrect password','auth/invalid-credential':'Invalid email or password','auth/too-many-requests':'Too many attempts. Try again later'};
+    showAuthErr(msgs[err.code]||'Sign in failed. Try again.');
+  }finally{if(btn){btn.disabled=false;btn.textContent='Sign In';}}
+}
+
+async function doEmailSignUp(){
+  const name=document.getElementById('upName')?.value.trim();
+  const e=document.getElementById('upEmail')?.value.trim();
+  const p=document.getElementById('upPass')?.value;
+  if(!name||!e||!p){showAuthErr('Fill in all fields');return;}
+  if(p.length<6){showAuthErr('Password must be at least 6 characters');return;}
+  const btn=document.getElementById('upBtn');
+  if(btn){btn.disabled=true;btn.textContent='Creating account...';}
+  try{
+    const cred=await window._fb.signUpEmail(e,p);
+    await window._fb.updateProfile(cred.user,{displayName:name});
+    window._user=cred.user;
+    closeAuth();showToast('Welcome to TAVIK! 🎬');
+  }catch(err){
+    const msgs={'auth/email-already-in-use':'Email already registered','auth/invalid-email':'Invalid email','auth/weak-password':'Password too weak'};
+    showAuthErr(msgs[err.code]||'Sign up failed. Try again.');
+  }finally{if(btn){btn.disabled=false;btn.textContent='Create Account';}}
+}
+
+function onAuthChange(user){
+  const area=document.getElementById('navAuthArea');
+  if(!area)return;
+  if(user){
+    const init=(user.displayName||user.email||'U')[0].toUpperCase();
+    area.innerHTML=`<div class="nav-avatar" onclick="showTab('profile')" title="${user.displayName||user.email}">${init}</div>`;
+    // Load watchlist
+    loadWatchlist();
+    // Update bottom nav profile icon
+    const bpIcon=document.getElementById('bn-profile');
+    if(bpIcon){
+      const svg=bpIcon.querySelector('svg');
+      if(svg)svg.outerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;font-family:'DM Sans',sans-serif">${init}</div>`;
+    }
+  }else{
+    area.innerHTML=`<button class="nav-signin-btn" onclick="openAuth()">Sign In</button>`;
+  }
+}
+
+// ── WATCHLIST ──
+function loadWatchlist(){
+  const user=window._user;
+  if(!user||!window._fb?.ready)return;
+  const r=window._fb.ref(window._fb.db,`watchlists/${user.uid}`);
+  window._fb.onValue(r,snap=>{
+    _watchlist=snap.val()||{};
+    // Refresh heart buttons
+    document.querySelectorAll('.heart-btn[data-id]').forEach(btn=>{
+      const saved=!!_watchlist[btn.dataset.id];
+      btn.classList.toggle('saved',saved);
+      btn.textContent=saved?'♥':'♡';
+    });
+    // Refresh watchlist page if open
+    if(document.getElementById('watchlistPage').classList.contains('show'))renderWatchlist();
+  },{onlyOnce:false});
+}
+
+async function toggleWatchlist(id,type,title,poster,year,rating,ev){
+  if(ev)ev.stopPropagation();
+  if(!window._user){openAuth();return;}
+  const r=window._fb.ref(window._fb.db,`watchlists/${window._user.uid}/${id}`);
+  if(_watchlist[id]){
+    await window._fb.remove(r);
+    delete _watchlist[id];
+    showToast('Removed from watchlist');
+  }else{
+    const item={id,type,title,poster:poster||'',year:year||'',rating:rating||'',added:Date.now()};
+    await window._fb.set(r,item);
+    _watchlist[id]=item;
+    showToast('♥ Saved to watchlist!');
+  }
+  // Update heart button
+  document.querySelectorAll(`.heart-btn[data-id="${id}"]`).forEach(btn=>{
+    btn.classList.toggle('saved',!!_watchlist[id]);
+    btn.textContent=_watchlist[id]?'♥':'♡';
+  });
+}
+
+function renderWatchlist(){
+  const grid=document.getElementById('watchlistGrid');
+  if(!grid)return;
+  const items=Object.values(_watchlist).filter(Boolean).sort((a,b)=>b.added-a.added);
+  if(!items.length){
+    grid.innerHTML=`<div class="wl-empty" style="grid-column:1/-1"><div class="wl-icon">♡</div><h3>Nothing saved yet</h3><p>Tap ♡ on any movie or show to save it here</p></div>`;
+    return;
+  }
+  grid.innerHTML=items.map((m,i)=>{
+    const poster=m.poster?`<img class="movie-poster" src="${IMG}${m.poster}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>🎬</div>'">`:`<div class="no-poster">🎬</div>`;
+    return `<div class="movie-card" style="animation-delay:${i*0.04}s" onclick="openItem(${m.id},'${m.type}')">
+      ${poster}
+      <button class="heart-btn saved" data-id="${m.id}" onclick="toggleWatchlist('${m.id}','${m.type}','${(m.title||'').replace(/'/g,"\'")}','${m.poster||''}','${m.year||''}','${m.rating||''}',event)">♥</button>
+      <div class="movie-info">
+        <div class="movie-title">${m.title||'Unknown'}</div>
+        <div class="movie-meta"><span class="movie-year">${m.year||'—'}</span><span class="movie-rating">⭐${m.rating||'—'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  const el=document.getElementById('profileContent');
+  if(!el)return;
+  const user=window._user;
+  if(!user){
+    el.innerHTML=`<div style="text-align:center;padding:60px 20px">
+      <div style="font-size:56px;margin-bottom:16px">👤</div>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:8px">Sign In to TAVIK</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Save your watchlist across all devices</p>
+      <button onclick="openAuth()" style="padding:13px 28px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted)">No account? <span onclick="openAuth('up')" style="color:var(--accent);cursor:pointer">Create one free</span></p>
+    </div>`;
+    return;
+  }
+  const init=(user.displayName||user.email||'U')[0].toUpperCase();
+  const wlCount=Object.keys(_watchlist).length;
+  el.innerHTML=`
+    <div class="profile-avatar">${init}</div>
+    <div class="profile-name">${user.displayName||'TAVIK User'}</div>
+    <div class="profile-email">${user.email||''}</div>
+    <div class="profile-card">
+      <div class="profile-row" onclick="showTab('watchlist')">
+        <div class="profile-row-left"><div class="profile-icon" style="background:rgba(255,77,109,0.15)">♥</div><span>My Watchlist</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--muted)">${wlCount} saved</span><span style="color:var(--muted)">›</span></div>
+      </div>
+      <div class="profile-row" onclick="showTab('trending')">
+        <div class="profile-row-left"><div class="profile-icon" style="background:rgba(229,9,20,0.12)">🔥</div><span>Trending Now</span></div>
+        <span style="color:var(--muted)">›</span>
+      </div>
+      <div class="profile-row" onclick="showTab('anime')">
+        <div class="profile-row-left"><div class="profile-icon" style="background:rgba(255,107,157,0.12)">🎌</div><span>TavAnime</span></div>
+        <span style="color:var(--muted)">›</span>
+      </div>
+      <div class="profile-row" onclick="showTab('privacy')">
+        <div class="profile-row-left"><div class="profile-icon" style="background:rgba(255,255,255,0.06)">🔒</div><span>Privacy Policy</span></div>
+        <span style="color:var(--muted)">›</span>
+      </div>
+    </div>
+    <button class="profile-signout" onclick="doSignOut()">Sign Out</button>`;
+}
+
+async function doSignOut(){
+  await window._fb.signOut();
+  window._user=null;
+  _watchlist={};
+  showToast('Signed out');
+  showTab('home');
+}
+
 // ── BOTTOM NAV ──
-(function(){
-  function isMobile(){ return window.innerWidth <= 900; }
-  function setupNav(){
-    var nav = document.getElementById('bottomNav');
-    var tabs = document.querySelector('.nav-tabs');
-    var burger = document.getElementById('menuBtn');
-    if(!nav) return;
-    if(isMobile()){
-      nav.style.display = 'block';
-      if(tabs) tabs.style.display = 'none';
-      // add padding so content not hidden behind nav
-      document.body.style.paddingBottom = '70px';
-    } else {
-      nav.style.display = 'none';
-      if(tabs) tabs.style.display = 'flex';
-      document.body.style.paddingBottom = '';
+function bnav(tab,btn){
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  showTab(tab);
+}
+
+// Apply mobile layout — works on file:// AND https://
+function applyLayout(){
+  const mobile=window.innerWidth<=900;
+  const nav=document.getElementById('bottomNav');
+  const tabs=document.querySelector('.nav-tabs');
+  if(nav)nav.style.display=mobile?'block':'none';
+  if(tabs)tabs.style.display=mobile?'none':'flex';
+}
+applyLayout();
+window.addEventListener('resize',applyLayout);
+setTimeout(applyLayout,50);
+setTimeout(applyLayout,500);
+
+// Sync bottom nav active state with showTab
+const _origShowTab=showTab;
+showTab=function(tab,btn){
+  _origShowTab(tab,btn);
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  const map={home:'bn-home',movies:'bn-browse',tvshows:'bn-browse',trending:'bn-browse',watchlist:'bn-watchlist',profile:'bn-profile'};
+  if(map[tab])document.getElementById(map[tab])?.classList.add('active');
+};
+
+
+// ══════════════════════════════════════
+// HERO — Auto-rotating with real backdrops
+// ══════════════════════════════════════
+let _heroMovies=[];
+let _heroIdx=0;
+let _heroTimer=null;
+let _heroCurrent=1; // which img element is active (1 or 2)
+
+async function initHero(){
+  const d=await api('/trending/all/week?page=1');
+  _heroMovies=(d.results||[]).filter(m=>m.backdrop_path).slice(0,8);
+  if(!_heroMovies.length)return;
+  setHero(0);
+  buildHeroDots();
+  _heroTimer=setInterval(()=>setHero((_heroIdx+1)%_heroMovies.length),7000);
+}
+
+function buildHeroDots(){
+  const c=document.getElementById('heroDots');
+  if(!c)return;
+  c.innerHTML=_heroMovies.map((_,i)=>`<button class="hero-dot${i===0?' active':''}" onclick="setHero(${i})"></button>`).join('');
+}
+
+function setHero(idx){
+  _heroIdx=idx;
+  const m=_heroMovies[idx];
+  if(!m)return;
+  // Cross-fade backdrops
+  const bg1=document.getElementById('heroBg1');
+  const bg2=document.getElementById('heroBg2');
+  const nextEl=_heroCurrent===1?bg2:bg1;
+  const currEl=_heroCurrent===1?bg1:bg2;
+  nextEl.src=`${BG}${m.backdrop_path}`;
+  nextEl.onload=()=>{
+    nextEl.classList.add('active');
+    setTimeout(()=>{currEl.classList.remove('active');},500);
+    _heroCurrent=_heroCurrent===1?2:1;
+  };
+  // Update dots
+  document.querySelectorAll('.hero-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  // Update text with animation
+  const content=document.getElementById('heroContent');
+  if(content){content.style.opacity='0';content.style.transform='translateY(10px)';}
+  setTimeout(()=>{
+    const title=m.title||m.name||'';
+    const desc=(m.overview||'').slice(0,120)+(m.overview?.length>120?'...':'');
+    const isTV=m.media_type==='tv';
+    const year=(m.release_date||m.first_air_date||'').slice(0,4);
+    const rating=m.vote_average?.toFixed(1);
+    const el=t=>document.getElementById(t);
+    if(el('heroTitle'))el('heroTitle').innerHTML=title.toUpperCase();
+    if(el('heroDesc'))el('heroDesc').textContent=desc||'Tap to watch now.';
+    if(el('heroBadge'))el('heroBadge').textContent=isTV?'📺 SERIES':'🎬 MOVIE';
+    if(content){content.style.transition='opacity 0.5s,transform 0.5s';content.style.opacity='1';content.style.transform='translateY(0)';}
+    window._heroMovie=m;
+  },200);
+}
+
+function heroPlay(){
+  const m=window._heroMovie;
+  if(m)openItem(m.id,m.media_type==='tv'?'tv':'movie');
+}
+function heroInfo(){
+  const m=window._heroMovie;
+  if(m)openItem(m.id,m.media_type==='tv'?'tv':'movie');
+}
+
+// ══════════════════════════════════════
+// TOP 10 NIGERIA
+// ══════════════════════════════════════
+async function fetchTop10(){
+  // Nigerian + popular movies this week
+  const [ng, pop] = await Promise.all([
+    api('/discover/movie?region=NG&sort_by=popularity.desc&page=1'),
+    api('/trending/movie/week?page=1')
+  ]);
+  const combined=[...(ng.results||[]),...(pop.results||[])];
+  const seen=new Set();
+  const unique=combined.filter(m=>{if(seen.has(m.id))return false;seen.add(m.id);return true;}).slice(0,10);
+  const g=document.getElementById('top10Grid');
+  if(!g)return;
+  g.innerHTML=unique.map((m,i)=>card(m,false,false,i,i+1)).join('');
+}
+
+// ══════════════════════════════════════
+// CONTINUE WATCHING — saved in localStorage
+// ══════════════════════════════════════
+function saveProgress(id,type,title,poster,year,pct){
+  const p=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+  p[id]={id,type,title,poster,year,pct,ts:Date.now()};
+  localStorage.setItem('tavik_progress',JSON.stringify(p));
+  renderContinueWatching();
+}
+
+function renderContinueWatching(){
+  const p=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+  const items=Object.values(p).sort((a,b)=>b.ts-a.ts).slice(0,6);
+  const sec=document.getElementById('continueSection');
+  const g=document.getElementById('continueGrid');
+  if(!sec||!g)return;
+  if(!items.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  g.innerHTML=items.map((m,i)=>{
+    const poster=m.poster?`<img class="movie-poster" src="${IMG}${m.poster}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>▶</div>'">`:`<div class="no-poster">▶</div>`;
+    return `<div class="movie-card" style="animation-delay:${i*0.04}s" onclick="openItem(${m.id},'${m.type}')">
+      ${poster}
+      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.1)"><div style="height:100%;width:${m.pct||5}%;background:var(--accent)"></div></div>
+      <div class="movie-info">
+        <div class="movie-title">${m.title||'Unknown'}</div>
+        <div class="movie-meta"><span class="movie-year">${m.year||'—'}</span><span class="movie-rating" style="font-size:10px;color:var(--green)">▶ Resume</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearContinue(){
+  localStorage.removeItem('tavik_progress');
+  document.getElementById('continueSection').style.display='none';
+  showToast('Watch history cleared');
+}
+
+// Save progress when video plays (called from player)
+function trackWatching(id,type,title,poster,year){
+  // Save at 5% progress immediately when they start watching
+  saveProgress(id,type,title,poster,year,5);
+  // Update to random % between 10-90 after 10s (simulates real progress)
+  setTimeout(()=>{
+    const p=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+    if(p[id])saveProgress(id,type,title,poster,year,Math.floor(Math.random()*60)+15);
+  },10000);
+}
+
+// ══════════════════════════════════════
+// SHOW TOP 10 ON HOME
+// ══════════════════════════════════════
+const __origShowTab=showTab;
+showTab=function(tab,btn){
+  __origShowTab(tab,btn);
+  if(tab==='home'){
+    // Show continue watching + top 10 on home
+    const t10=document.getElementById('top10Section');
+    if(t10)t10.style.display='block';
+    renderContinueWatching();
+  }
+};
+
+// ══════════════════════════════════════
+// BUG FIXES FOR AUTH
+// ══════════════════════════════════════
+
+// Fix: Google popup blocked on mobile — use redirect instead
+async function doGoogleSignIn(){
+  if(!window._fb){showAuthErr('Still loading, please wait...');return;}
+  try{
+    // Try popup first (works on desktop)
+    await window._fb.signInGoogle();
+    closeAuth();
+    showToast('Welcome! 👋');
+  }catch(e){
+    if(e.code==='auth/popup-blocked'||e.code==='auth/cancelled-popup-request'){
+      // Popup blocked — try redirect
+      try{
+        const{getAuth,signInWithRedirect,GoogleAuthProvider}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+        await signInWithRedirect(window._fb.auth,window._fb.gp);
+      }catch(e2){showAuthErr('Google sign-in failed. Use email instead.');}
+    }else if(e.code!=='auth/popup-closed-by-user'){
+      showAuthErr('Google sign-in failed. Try email instead.');
     }
   }
-  window.addEventListener('load', setupNav);
-  window.addEventListener('resize', setupNav);
-  document.addEventListener('DOMContentLoaded', setupNav);
-  setTimeout(setupNav, 100);
+}
 
-  window.bnav = function(tab, btn){
-    document.querySelectorAll('.bnav-btn').forEach(function(b){ b.classList.remove('active'); });
-    btn.classList.add('active');
-    if(tab === 'watchlist'){
-      // use existing watchlist logic
-      showTab('watchlist', btn);
-    } else {
-      showTab(tab, btn);
+// Fix: Enter key submits auth forms
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeAuth();}
+  if(e.key==='Enter'){
+    const overlay=document.getElementById('authOverlay');
+    if(overlay?.classList.contains('open')){
+      if(document.getElementById('authFormIn').style.display!=='none')doEmailSignIn();
+      else doEmailSignUp();
     }
-  };
-})();
+  }
+});
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+initHero();
+fetchTop10();
+renderContinueWatching();
 
 </script>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-box">
+    <div class="auth-handle"></div>
+    <div class="auth-logo">TAVIK</div>
+    <p class="auth-sub">Sign in to unlock your watchlist</p>
+    <button class="auth-google-btn" onclick="doGoogleSignIn()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-divider">or use email</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="authTabIn" onclick="switchAuthTab('in')">Sign In</button>
+      <button class="auth-tab" id="authTabUp" onclick="switchAuthTab('up')">Sign Up</button>
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <div id="authFormIn">
+      <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="inEmail" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="inPass" placeholder="Password" autocomplete="current-password"></div>
+      <button class="auth-submit" id="inBtn" onclick="doEmailSignIn()">Sign In</button>
+    </div>
+    <div id="authFormUp" style="display:none">
+      <div class="auth-field"><label>Your Name</label><input class="auth-input" type="text" id="upName" placeholder="Full name"></div>
+      <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="upEmail" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="upPass" placeholder="Min 6 characters" autocomplete="new-password"></div>
+      <button class="auth-submit" id="upBtn" onclick="doEmailSignUp()">Create Account</button>
+    </div>
+  </div>
+</div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottomNav">
   <div class="bnav-inner">
     <button class="bnav-btn active" id="bn-home" onclick="bnav('home',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>Home</span>
     </button>
     <button class="bnav-btn" id="bn-browse" onclick="bnav('movies',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
       <span>Browse</span>
     </button>
     <button class="bnav-btn" id="bn-watchlist" onclick="bnav('watchlist',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       <span>Watchlist</span>
     </button>
     <button class="bnav-btn" id="bn-profile" onclick="bnav('profile',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span>Profile</span>
     </button>
   </div>
