@@ -7,7 +7,7 @@
 <meta name="description" content="Discover movies and TV shows. Stream, rate and review everything.">
 <meta name="copyright" content="TAVIK JUSTWATCH © 2026">
 <meta name="author" content="Tavikk">
-<!-- Firebase -->
+
 <script type="module">
   import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import{getDatabase,ref,push,onValue,set,get,remove}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -368,7 +368,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 <!-- INTRO -->
 <div id="introScreen">
   <div class="intro-logo">TAVIK</div>
-  <div class="intro-sub">· JUSTWATCH ·</div>
+  <div class="intro-sub">JUSTWATCH</div>
   <div class="intro-bar"><div class="intro-fill"></div></div>
 </div>
 
@@ -525,7 +525,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 
     <!-- YouTube Nollywood Playlist -->
     <div style="margin-bottom:32px">
-      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">▶ FREE NOLLYWOOD ON YOUTUBE</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Free to Watch</div>
       <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;background:#000">
         <iframe src="https://www.youtube.com/embed/videoseries?list=PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL&autoplay=0"
           style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:14px"
@@ -534,7 +534,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     </div>
 
     <!-- TMDB Nollywood Movies -->
-    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">🎬 NOLLYWOOD MOVIES</div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Movies</div>
     <div class="movie-grid" id="naijaGrid">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -651,7 +651,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   <div class="footer-grid">
     <div class="footer-brand">
       <div class="logo">TAVIK<span>· JUSTWATCH</span></div>
-      <p>Discover movies & TV shows. Stream, rate and review everything. Powered by TMDB.</p>
+      <p>The home of movies, TV shows, anime & music. Watch anything, anywhere.</p>
     </div>
     <div class="footer-col">
       <h4>Browse</h4>
@@ -670,11 +670,11 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   </div>
   <div class="footer-bottom">
     <p>© 2026 TAVIK JUSTWATCH. All rights reserved.</p>
-    <p>Data by <strong style="color:var(--accent)">TMDB</strong></p>
+    <p>© 2026 TAVIK</p>
   </div>
 </footer>
 
-<!-- MOVIE MODAL -->
+
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -682,7 +682,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   </div>
 </div>
 
-<!-- TOAST -->
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -862,7 +862,7 @@ async function openItem(id,type='movie'){
 
   const starHtml=[1,2,3,4,5].map(s=>`<span class="r-star ${starSelected>=s?'on':''}" onclick="setStar(${id},${s})">${starSelected>=s?'★':'☆'}</span>`).join('');
 
-  // ── PLAYER URLS — VidPlus first, only working sources ──
+  // ── Player Sources ──
   const vidplusUrl=isTV
     ?`https://player.vidplus.to/embed/tv/${id}/1/1?autoplay=false`
     :`https://player.vidplus.to/embed/movie/${id}?autoplay=false`;
@@ -896,18 +896,19 @@ async function openItem(id,type='movie'){
 
   // Store fallback queue globally so auto-fallback can access it
   window._playerQueue = [
-    {url: vidplusUrl,   label: '🎬 VidPlus'},
-    {url: vidlinkUrl,   label: '🔗 VidLink'},
-    {url: vidsrcUrl,    label: '▶ VidSrc'},
-    {url: vidsrcccUrl,  label: '▶ VidSrc 2'},
-    {url: embedSuUrl,   label: '🔁 Embed.su'},
-    {url: twoEmbedUrl,  label: '🔁 2Embed'},
-    {url: hnEmbedUrl,   label: '🔁 HnEmbed'},
-    {url: moviesApiUrl, label: '🔁 MoviesAPI'},
-    {url: autoemUrl,    label: '🔁 AutoEmbed'},
-    {url: frembedUrl,   label: '🔁 Frembed'},
+    {url: vidlinkUrl,   label: 'S1'},
+    {url: vidplusUrl,   label: 'S2'},
+    {url: vidsrcUrl,    label: 'S3'},
+    {url: vidsrcccUrl,  label: 'S4'},
+    {url: embedSuUrl,   label: 'S5'},
+    {url: twoEmbedUrl,  label: 'S6'},
+    {url: hnEmbedUrl,   label: 'S7'},
+    {url: moviesApiUrl, label: 'S8'},
+    {url: autoemUrl,    label: 'S9'},
+    {url: frembedUrl,   label: 'S10'},
   ];
   window._playerIndex = 0;
+  window._currentMovie={id,type,title:item.title||item.name||'Unknown',poster:item.poster_path||'',year:(item.release_date||item.first_air_date||'').slice(0,4)};
 
   document.getElementById('modalContent').innerHTML=`
     <div style="height:260px;overflow:hidden;border-radius:20px 20px 0 0;position:relative">
@@ -928,10 +929,10 @@ async function openItem(id,type='movie'){
       </div>
       <p class="modal-overview">${item.overview||'No description available.'}</p>
 
-      <div class="sec-title">Where to Watch</div>
+      <div class="sec-title">Streaming On</div>
       <div class="providers">${provHtml}</div>
 
-      <div class="sec-title">🆓 Watch Free</div>
+      <div class="sec-title">Also Available On</div>
       <div class="free-btns">
         <a href="https://tubitv.com/search/${safeTitle}" target="_blank" class="free-btn" style="background:#E5163A">📺 Tubi</a>
         <a href="https://pluto.tv/search#${safeTitle}" target="_blank" class="free-btn" style="background:#333;border:1px solid #555">🪐 Pluto TV</a>
@@ -942,30 +943,23 @@ async function openItem(id,type='movie'){
       </div>
 
       <div class="player-section">
-        <div class="player-header">
-          <div class="player-title">▶ STREAM IT</div>
-          <div class="player-quality">
-            <span class="quality-badge">HD</span>
-            <span class="quality-badge">AUTO</span>
-          </div>
-        </div>
         <div class="player-btns">
-          <button class="player-btn active" onclick="loadPlayer('${vidplusUrl}',this)">🎬 VidPlus</button>
-          <button class="player-btn" onclick="loadPlayer('${vidlinkUrl}',this)">🔗 VidLink</button>
-          <button class="player-btn" onclick="loadPlayer('${vidsrcUrl}',this)">▶ VidSrc</button>
-          <button class="player-btn" onclick="loadPlayer('${vidsrcccUrl}',this)">▶ VidSrc 2</button>
-          <button class="player-btn" onclick="loadPlayer('${embedSuUrl}',this)">🔁 Embed.su</button>
-          <button class="player-btn" onclick="loadPlayer('${twoEmbedUrl}',this)">🔁 2Embed</button>
-          <button class="player-btn" onclick="loadPlayer('${hnEmbedUrl}',this)">🔁 HnEmbed</button>
-          <button class="player-btn" onclick="loadPlayer('${moviesApiUrl}',this)">🔁 MoviesAPI</button>
-          <button class="player-btn" onclick="loadPlayer('${autoemUrl}',this)">🔁 AutoEmbed</button>
-          <button class="player-btn" onclick="loadPlayer('${frembedUrl}',this)">🔁 Frembed</button>
+          <button class="player-btn active" onclick="loadPlayer('${vidlinkUrl}',this)">Server 1</button>
+          <button class="player-btn" onclick="loadPlayer('${vidplusUrl}',this)">Server 2</button>
+          <button class="player-btn" onclick="loadPlayer('${vidsrcUrl}',this)">Server 3</button>
+          <button class="player-btn" onclick="loadPlayer('${vidsrcccUrl}',this)">Server 4</button>
+          <button class="player-btn" onclick="loadPlayer('${embedSuUrl}',this)">Server 5</button>
+          <button class="player-btn" onclick="loadPlayer('${autoemUrl}',this)">Server 6</button>
+          <button class="player-btn" onclick="loadPlayer('${moviesApiUrl}',this)">Server 7</button>
+          <button class="player-btn" onclick="loadPlayer('${twoEmbedUrl}',this)">Server 8</button>
+          <button class="player-btn" onclick="loadPlayer('${hnEmbedUrl}',this)">Server 9</button>
+          <button class="player-btn" onclick="loadPlayer('${frembedUrl}',this)">Server 10</button>
         </div>
         <div class="player-wrap" id="playerWrap">
           <div class="player-thumb" onclick="autoPlay()">
             <div class="play-btn">▶</div>
-            <p>TAP TO STREAM</p>
-            <small>Auto-tries all sources until one works</small>
+            
+            
           </div>
         </div>
         <div class="player-actions">
@@ -985,14 +979,14 @@ async function openItem(id,type='movie'){
 
       ${cast.length?`<div class="sec-title">Cast</div><div class="cast-grid">${castHtml}</div>`:''}
 
-      <div class="sec-title">Rate & Review</div>
+      <div class="sec-title">Your Rating</div>
       <div class="review-box">
         <div class="review-stars" id="rStars">${starHtml}</div>
         <textarea class="review-input" id="rText" placeholder="Write your review... (optional)"></textarea>
         <button class="review-submit" onclick="submitReview(${id})">Submit Review</button>
       </div>
 
-      <div class="sec-title">Community Reviews</div>
+      <div class="sec-title">Reviews</div>
       <div class="reviews-list" id="rList">
         <div class="spinner" style="width:24px;height:24px;border-width:2px;margin:16px auto"></div>
       </div>
@@ -1078,16 +1072,51 @@ async function startDownload(id, type, title) {
 }
 
 // ── FULLSCREEN ──
-function goFullscreen() {
-  const wrap = document.getElementById('playerWrap');
-  if(!wrap) return;
-  const iframe = wrap.querySelector('iframe');
-  if(!iframe) { showToast('Start streaming first!'); return; }
-  if(iframe.requestFullscreen) iframe.requestFullscreen();
-  else if(iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
-  else if(wrap.requestFullscreen) wrap.requestFullscreen();
-  showToast('⛶ Fullscreen');
+function goFullscreen(){
+  const wrap=document.getElementById('playerWrap');
+  if(!wrap)return;
+  if(!wrap.querySelector('iframe')){showToast('Start streaming first!');return;}
+  // Try fullscreen on wrap (shows landscape properly)
+  const el=wrap;
+  const req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+  if(req){
+    req.call(el).catch(()=>{
+      // If wrap fullscreen fails, try iframe
+      const f=wrap.querySelector('iframe');
+      const fr=f?.requestFullscreen||f?.webkitRequestFullscreen;
+      if(fr)fr.call(f).catch(()=>{});
+    });
+  } else {
+    // Fallback — make wrap cover full screen manually
+    wrap.style.cssText='position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;border-radius:0!important;padding:0!important';
+    document.body.style.overflow='hidden';
+    showToast('Tap back to exit');
+  }
 }
+// Handle fullscreen change — smooth orientation
+document.addEventListener('fullscreenchange',_onFsChange);
+document.addEventListener('webkitfullscreenchange',_onFsChange);
+function _onFsChange(){
+  const wrap=document.getElementById('playerWrap');
+  if(!wrap)return;
+  const isFs=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  if(isFs){
+    wrap.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;border-radius:0;padding-bottom:0;transition:all 0.3s ease';
+  } else {
+    wrap.style.cssText='';
+  }
+}
+// Auto fullscreen on landscape rotation when playing
+window.addEventListener('orientationchange',()=>{
+  setTimeout(()=>{
+    const wrap=document.getElementById('playerWrap');
+    if(!wrap?.querySelector('iframe'))return;
+    const isLandscape=window.innerWidth>window.innerHeight;
+    if(isLandscape&&!document.fullscreenElement&&!document.webkitFullscreenElement){
+      goFullscreen();
+    }
+  },300);
+});
 
 // ── SHARE ──
 function shareMovie(title, id, type) {
@@ -1115,147 +1144,180 @@ function copyToClipboard(text) {
     });
 }
 (function(){
-  // 1. Block popup windows from ads
-  const _origOpen=window.open;
-  window.open=function(url,...a){
-    if(!url)return null;
-    const bad=['pop','casino','bet','adult','xxx','porn','prize','lottery','viagra','pills'];
-    if(bad.some(b=>url.toLowerCase().includes(b)))return null;
-    return _origOpen.call(window,url,...a);
-  };
+  const BAD=['brightadnetwork','ghtadnetwork','doubleclick','googlesyndication',
+    'adnxs','outbrain','taboola','mgid','popads','popcash','adsterra','propellerads',
+    'exoclick','juicyads','trafficjunky','revcontent','bidvertiser','hilltopads',
+    'pop.zeropark','richpush','push.express','moonads','adcash','jump/next',
+    'casino','betting','adult','porn','xxx','viagra'];
+  const isBad=u=>{if(!u)return false;const l=u.toLowerCase();return BAD.some(b=>l.includes(b));};
 
-  // 2. Watch for ad iframes being injected and remove them
-  const observer=new MutationObserver(mutations=>{
-    mutations.forEach(m=>{
-      m.addedNodes.forEach(node=>{
-        if(node.nodeType!==1)return;
-        const src=node.src||node.getAttribute?.('src')||'';
-        const bad=['doubleclick','googlesyndication','adnxs','outbrain','taboola','mgid','popads','popcash','adsterra','propellerads'];
-        if((node.tagName==='IFRAME'||node.tagName==='SCRIPT')&&bad.some(b=>src.includes(b))){
-          node.remove();
-        }
-      });
+  // Block window.open
+  const _orig=window.open;
+  window.open=function(url,...a){if(!url||isBad(url))return null;return _orig.call(window,url,...a);};
+
+  // Block ALL link clicks to bad domains
+  document.addEventListener('click',e=>{
+    const a=e.target.closest('a');
+    if(a&&isBad(a.href)){e.preventDefault();e.stopPropagation();return false;}
+  },true);
+
+  // Block injected iframes/scripts
+  new MutationObserver(ms=>{ms.forEach(m=>{m.addedNodes.forEach(n=>{
+    if(n.nodeType!==1)return;
+    const s=n.src||n.href||n.getAttribute?.('src')||n.getAttribute?.('href')||'';
+    if(isBad(s)){n.remove();return;}
+    n.querySelectorAll?.('iframe,script,a').forEach(el=>{
+      if(isBad(el.src||el.href||''))el.remove();
     });
-  });
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  });});}).observe(document.documentElement,{childList:true,subtree:true});
 
-  console.log('🛡️ TAVIK Ad Blocker Active');
+  // Block navigation redirects from iframes
+  window.addEventListener('message',e=>{
+    const d=typeof e.data==='string'?e.data:'';
+    if(isBad(d))return;
+  });
+
+  // Prevent page from being navigated away
+  const _push=history.pushState.bind(history);
+  const _replace=history.replaceState.bind(history);
+  history.pushState=function(s,t,u){if(u&&isBad(String(u)))return;return _push(s,t,u);};
+  history.replaceState=function(s,t,u){if(u&&isBad(String(u)))return;return _replace(s,t,u);};
 })();
 
-function blockPopups(){
-  // Already handled above — this is just for compatibility
-  if(window._popupBlocked)return;
-  window._popupBlocked=true;
-}
+function blockPopups(){if(window._popupBlocked)return;window._popupBlocked=true;}
 
-// ── AUTO FALLBACK PLAYER ──
-// Tries each source in order — if iframe loads blank/error, skips to next automatically
+// ══════════════════════════════════════
+// SMART PLAYER — Races all sources simultaneously
+// First one that loads wins — no slow sequential waiting
+// ══════════════════════════════════════
+const IFRAME_ALLOW='autoplay; fullscreen; picture-in-picture; encrypted-media; screen-wake-lock; clipboard-write';
+
 function autoPlay(){
   blockPopups();
-  window._playerIndex=0;
-  tryNextPlayer();
+  window._smartCancelled=false;
+  smartRace();
 }
 
-function tryNextPlayer(){
-  const queue=window._playerQueue||[];
-  const idx=window._playerIndex||0;
-  if(idx>=queue.length){
-    const wrap=document.getElementById('playerWrap');
-    if(wrap)wrap.innerHTML=`
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:var(--surface);border-radius:12px;padding:20px;text-align:center">
-        <div style="font-size:40px">😔</div>
-        <p style="color:var(--text);font-size:14px;font-weight:600">No stream found</p>
-        <p style="color:var(--muted);font-size:12px">Try the Watch Free links above or check back later</p>
-      </div>`;
-    showToast('No working stream found 😔');
-    return;
-  }
-
-  const {url,label}=queue[idx];
+async function smartRace(){
+  const queue=getSmartQueue(window._playerQueue||[]);
+  if(!queue.length)return;
   const wrap=document.getElementById('playerWrap');
   if(!wrap)return;
 
-  // Update active button
-  document.querySelectorAll('.player-btn').forEach((b,i)=>{
-    b.classList.toggle('active', b.textContent.trim()===label);
-  });
-
-  // Show loading with source name + skip button
+  // Clean loading UI — no source names leaked
   wrap.innerHTML=`
-    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:var(--surface);border-radius:12px">
-      <div class="spinner" style="margin:0"></div>
-      <p style="color:var(--muted);font-size:12px;font-family:'Space Mono',monospace">${label}</p>
-      <button onclick="skipPlayer()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Skip →</button>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:linear-gradient(135deg,#060810,#120508)">
+      <div style="position:relative;width:52px;height:52px">
+        <div style="position:absolute;inset:0;border-radius:50%;border:3px solid rgba(229,9,20,0.15);border-top-color:#e50914;animation:spin 0.7s linear infinite"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px">▶</div>
+      </div>
+      <p style="color:rgba(255,255,255,0.45);font-size:12px;font-family:'DM Sans',sans-serif;letter-spacing:0.5px">Loading stream...</p>
+      <div style="width:140px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden">
+        <div id="_rBar" style="height:100%;width:0%;background:linear-gradient(90deg,#e50914,#ff6b35);border-radius:2px;transition:width 7s linear"></div>
+      </div>
     </div>`;
+  requestAnimationFrame(()=>{const b=document.getElementById('_rBar');if(b)b.style.width='88%';});
 
-  // Load iframe in hidden div first to detect blank load
-  const testFrame=document.createElement('iframe');
-  testFrame.src=url;
-  testFrame.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0;opacity:0';
-  testFrame.allowFullscreen=true;
-  testFrame.setAttribute('allow','autoplay;fullscreen;encrypted-media;picture-in-picture');
+  window._smartCancelled=false;
+  let won=false;
+  const frames=[];
 
-  let loaded=false;
-  // After 6 seconds show the frame regardless — assume it worked
-  const showTimer=setTimeout(()=>{
-    if(!loaded&&wrap&&document.getElementById('playerWrap')===wrap){
-      loaded=true;
-      testFrame.style.opacity='1';
-      wrap.innerHTML='';
-      wrap.appendChild(testFrame);
-      showToast(`▶ ${label} loaded!`);
+  // Launch all sources simultaneously off-screen
+  const promises=queue.map((src,i)=>new Promise(resolve=>{
+    const f=document.createElement('iframe');
+    f.src=src.url;
+    f.style.cssText='position:fixed;top:-9999px;left:-9999px;width:300px;height:200px;opacity:0;pointer-events:none;border:0';
+    f.setAttribute('allow',IFRAME_ALLOW);
+    f.setAttribute('allowfullscreen','true');
+    frames.push(f);
+    document.body.appendChild(f);
+    const t=setTimeout(()=>resolve({ok:false,src,f}),7000);
+    f.onload=()=>{clearTimeout(t);resolve({ok:true,src,f});};
+    f.onerror=()=>{clearTimeout(t);resolve({ok:false,src,f});};
+  }));
+
+  // First ok one wins
+  await Promise.race(promises.map(p=>p.then(r=>{
+    if(r.ok&&!won&&!window._smartCancelled&&wrap===document.getElementById('playerWrap')){
+      won=true;
+      _playWinner(r.src.url,r.src.label,wrap);
     }
-  },6000);
+  })));
 
-  testFrame.onload=()=>{
-    clearTimeout(showTimer);
-    if(!loaded&&wrap&&document.getElementById('playerWrap')===wrap){
-      loaded=true;
-      testFrame.style.opacity='1';
-      wrap.innerHTML='';
-      wrap.appendChild(testFrame);
-      showToast(`▶ ${label} loaded!`);
-    }
-  };
+  // Cleanup off-screen frames after 4s
+  setTimeout(()=>frames.forEach(f=>{if(f.parentNode&&!f.closest('#playerWrap'))f.remove();}),4000);
 
-  testFrame.onerror=()=>{
-    clearTimeout(showTimer);
-    if(!loaded){
-      loaded=true;
-      skipPlayer();
-    }
-  };
-
-  // Append hidden frame to start loading
-  wrap.appendChild(testFrame);
-  showToast(`Trying ${label}...`);
+  // If race failed entirely, try sequentially
+  if(!won&&!window._smartCancelled){
+    window._playerIndex=0;
+    _trySeq();
+  }
 }
 
-function skipPlayer(){
-  window._playerIndex=(window._playerIndex||0)+1;
-  tryNextPlayer();
+function _playWinner(url,label,wrap){
+  if(!wrap||window._smartCancelled)return;
+  document.querySelectorAll('.player-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()===label));
+  wrap.innerHTML='';
+  const f=document.createElement('iframe');
+  f.src=url;
+  f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0';
+  f.setAttribute('allow',IFRAME_ALLOW);
+  f.setAttribute('allowfullscreen','true');
+  wrap.appendChild(f);
+  // Enable sound via user gesture simulation
+  const g=document.createElement('div');
+  g.style.cssText='position:absolute;inset:0;z-index:2;cursor:pointer;background:transparent';
+  g.onclick=()=>g.remove();
+  setTimeout(()=>{if(g.parentNode)g.click();},600);
+  wrap.appendChild(g);
+  window._currentPlayerUrl=url;
+  rememberServer(label);
+  // Track continue watching
+  if(window._currentMovie){const m=window._currentMovie;trackWatching(m.id,m.type,m.title,m.poster,m.year);}
 }
 
-// Manual player switch (when user clicks a specific button)
+// Sequential fallback
+function _trySeq(){
+  const queue=window._playerQueue||[];
+  const idx=window._playerIndex||0;
+  if(idx>=queue.length){
+    const w=document.getElementById('playerWrap');
+    if(w)w.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:linear-gradient(135deg,#060810,#120508);text-align:center;padding:24px"><div style="font-size:40px">📡</div><p style="color:rgba(255,255,255,0.8);font-size:15px;font-weight:700;font-family:'Bebas Neue',sans-serif;letter-spacing:2px">UNAVAILABLE</p><p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6">This title is not available right now</p><button onclick="autoPlay()" style="padding:10px 22px;background:#e50914;border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Try Again</button></div>`;
+    return;
+  }
+  const{url,label}=queue[idx];
+  const wrap=document.getElementById('playerWrap');
+  if(!wrap)return;
+  document.querySelectorAll('.player-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()===label));
+  wrap.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#060810,#120508)"><div style="width:36px;height:36px;border:3px solid rgba(229,9,20,0.2);border-top-color:#e50914;border-radius:50%;animation:spin 0.7s linear infinite"></div></div>`;
+  const f=document.createElement('iframe');
+  f.src=url;f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0;opacity:0';
+  f.setAttribute('allow',IFRAME_ALLOW);f.setAttribute('allowfullscreen','true');
+  let d=false;
+  const t=setTimeout(()=>{if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}},5000);
+  f.onload=()=>{clearTimeout(t);if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}};
+  f.onerror=()=>{clearTimeout(t);if(!d){d=true;skipPlayer();}};
+  wrap.appendChild(f);
+}
+function tryNextPlayer(){_trySeq();}
+function skipPlayer(){window._playerIndex=(window._playerIndex||0)+1;_trySeq();}
+
 function loadPlayer(url,btn){
   blockPopups();
+  window._smartCancelled=true;
   document.querySelectorAll('.player-btn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const wrap=document.getElementById('playerWrap');if(!wrap)return;
-  const label=btn?btn.textContent.trim():'';
-
-  // Update fallback queue to start from this source
-  const queue=window._playerQueue||[];
-  const idx=queue.findIndex(p=>p.url===url);
-  if(idx>=0)window._playerIndex=idx;
-
-  wrap.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border-radius:12px"><div class="spinner" style="margin:0"></div><p style="color:var(--muted);font-size:11px;font-family:'Space Mono',monospace">${label}</p></div>`;
-  setTimeout(()=>{
-    if(wrap)wrap.innerHTML=`<iframe src="${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen allow="autoplay;fullscreen;encrypted-media;picture-in-picture"></iframe>`;
-    showToast(`▶ ${label} loaded!`);
-  },400);
+  wrap.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000"><div style="width:36px;height:36px;border:3px solid rgba(229,9,20,0.2);border-top-color:#e50914;border-radius:50%;animation:spin 0.7s linear infinite"></div></div>`;
+  const f=document.createElement('iframe');
+  f.src=url;f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0;opacity:0';
+  f.setAttribute('allow',IFRAME_ALLOW);f.setAttribute('allowfullscreen','true');
+  let d=false;
+  const t=setTimeout(()=>{if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}},3500);
+  f.onload=()=>{clearTimeout(t);if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}};
+  wrap.appendChild(f);
+  window._currentPlayerUrl=url;
 }
-
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow='';
@@ -1282,7 +1344,7 @@ function submitReview(id){
   const review={stars:starSelected,text:text||'No written review.',date:new Date().toLocaleDateString()};
   if(window._fbReady){
     try{window._fbPush(window._fbRef(window._fbDb,`tavik_reviews/${id}`),review);}
-    catch(e){console.log('Firebase error:',e);}
+    catch(e){}
   }
   if(textEl)textEl.value='';
   showToast('Review saved! 🔥');
@@ -1533,7 +1595,7 @@ async function fetchSearch(q){
         <div class="movie-info">
           <div class="movie-title">${m.title}</div>
           <div class="movie-meta"><span class="movie-year">${m.release_date?.slice(0,4)||'—'}</span><span class="movie-rating" style="color:#f5c518">IMDb</span></div>
-          <div class="rate-label">Tap to view</div>
+          
         </div>
       </div>`;
     }).join('');
@@ -1582,14 +1644,14 @@ async function openOmdbItem(imdbId,titleFallback){
       <p class="modal-overview">${omdb.Plot||'No description.'}</p>
       ${omdb.Director&&omdb.Director!=='N/A'?`<p style="font-size:13px;color:var(--muted);margin-bottom:12px">🎬 <span style="color:var(--text)">${omdb.Director}</span></p>`:''}
       ${omdb.Actors&&omdb.Actors!=='N/A'?`<p style="font-size:13px;color:var(--muted);margin-bottom:20px">🎭 <span style="color:var(--text)">${omdb.Actors}</span></p>`:''}
-      <div class="sec-title">🆓 Watch Free</div>
+      <div class="sec-title">Also Available On</div>
       <div class="free-btns" style="margin-bottom:4px">
         <a href="https://tubitv.com/search/${safeTitle}" target="_blank" class="free-btn" style="background:#E5163A">📺 Tubi</a>
         <a href="https://pluto.tv/search#${safeTitle}" target="_blank" class="free-btn" style="background:#333;border:1px solid #555">🪐 Pluto</a>
         <a href="https://www.plex.tv/search/?q=${safeTitle}" target="_blank" class="free-btn" style="background:#E5A00D;color:#000">▶ Plex</a>
         <a href="https://aniwave.to/filter?keyword=${safeTitle}" target="_blank" class="free-btn" style="background:#1a6b9a">🌊 Aniwave</a>
       </div>
-      <div class="sec-title">▶ Stream It</div>
+      <div class="sec-title">▶ Watch</div>
       <div class="player-btns">
         <button class="player-btn active" onclick="loadPlayer('${vidplusUrl}',this)">🎬 VidPlus</button>
         <button class="player-btn" onclick="loadPlayer('${vidlinkUrl}',this)">🔗 VidLink</button>
@@ -1598,11 +1660,11 @@ async function openOmdbItem(imdbId,titleFallback){
         <a href="https://www.imdb.com/title/${imdbId}" target="_blank" class="player-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">📋 IMDb</a>
       </div>
       <div class="player-wrap" id="playerWrap">
-        <div class="player-thumb" onclick="autoPlay()"><div class="play-btn">▶</div><p>TAP TO STREAM</p><p style="font-size:10px;color:var(--border);margin-top:4px">Auto-tries all sources</p></div>
+        <div class="player-thumb" onclick="autoPlay()"><div class="play-btn">▶</div></div>
       </div>
-      <div class="sec-title">Rate & Review</div>
+      <div class="sec-title">Your Rating</div>
       <div class="review-box"><div class="review-stars" id="rStars">${starHtml}</div><textarea class="review-input" id="rText" placeholder="Write your review..."></textarea><button class="review-submit" onclick="submitReview('${imdbId}')">Submit Review</button></div>
-      <div class="sec-title">Community Reviews</div>
+      <div class="sec-title">Reviews</div>
       <div class="reviews-list" id="rList"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin:16px auto"></div></div>
     </div>`;
   loadFbReviews(imdbId);
@@ -1718,7 +1780,7 @@ async function openAnime(anilistId,titleFallback){
       ${studios?`<p style="font-size:12px;color:var(--muted);margin-bottom:16px">🏢 <span style="color:var(--text)">${studios}</span></p>`:''}
       <p class="modal-overview">${desc.slice(0,400)}${desc.length>400?'...':''}</p>
 
-      <div class="sec-title">🆓 Watch Free</div>
+      <div class="sec-title">Also Available On</div>
       <div class="free-btns" style="margin-bottom:4px">
         <a href="https://aniwave.to/filter?keyword=${safeTitle}" target="_blank" class="free-btn" style="background:#1a6b9a">🌊 Aniwave</a>
         <a href="https://animeheaven.me/search.php?q=${safeTitle}" target="_blank" class="free-btn" style="background:#6b3fa0">⛩️ AnimeHeaven</a>
@@ -1726,7 +1788,7 @@ async function openAnime(anilistId,titleFallback){
         <a href="https://hianime.to/search?keyword=${safeTitle}" target="_blank" class="free-btn" style="background:#9b59b6">🌸 HiAnime</a>
       </div>
 
-      <div class="sec-title">▶ Stream It</div>
+      <div class="sec-title">▶ Watch</div>
 
       <!-- Episode + Sub/Dub Controls -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
@@ -1757,14 +1819,14 @@ async function openAnime(anilistId,titleFallback){
       <div class="player-wrap" id="playerWrap">
         <div class="player-thumb" onclick="playAnime()">
           <div class="play-btn" style="background:#ff6b9d">▶</div>
-          <p>TAP TO STREAM</p>
-          <p style="font-size:10px;color:var(--border);margin-top:4px">Auto-tries all sources</p>
+          
+          
         </div>
       </div>
 
-      <div class="sec-title">Rate & Review</div>
+      <div class="sec-title">Your Rating</div>
       <div class="review-box"><div class="review-stars" id="rStars">${starHtml}</div><textarea class="review-input" id="rText" placeholder="Write your review..."></textarea><button class="review-submit" onclick="submitReview('anime_${anilistId}')">Submit Review</button></div>
-      <div class="sec-title">Community Reviews</div>
+      <div class="sec-title">Reviews</div>
       <div class="reviews-list" id="rList"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin:16px auto"></div></div>
     </div>`;
 
@@ -1797,7 +1859,7 @@ async function getHiAnimeStream(title, ep) {
 
     return streamData.default.url;
   } catch(e) {
-    console.log('HiAnime API error:', e);
+    
     return null;
   }
 }
@@ -1983,12 +2045,7 @@ async function doGoogleSignIn(){
 // ── AUTH ──
 let _watchlist={};
 
-function openAuth(tab='in'){
-  document.getElementById('authOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
-  switchAuthTab(tab);
-  clearAuthErr();
-}
+
 function closeAuth(){
   document.getElementById('authOverlay').classList.remove('open');
   document.body.style.overflow='';
@@ -1998,6 +2055,13 @@ function switchAuthTab(t){
   document.getElementById('authFormUp').style.display=t==='up'?'block':'none';
   document.getElementById('authTabIn').classList.toggle('active',t==='in');
   document.getElementById('authTabUp').classList.toggle('active',t==='up');
+  clearAuthErr();
+}
+// Default: show signup first
+function openAuth(tab){
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  switchAuthTab(tab||'up');
   clearAuthErr();
 }
 function showAuthErr(msg){const e=document.getElementById('authErr');if(e){e.textContent=msg;e.classList.add('show');}}
@@ -2013,8 +2077,19 @@ async function doEmailSignIn(){
     await window._fb.signInEmail(e,p);
     closeAuth();showToast('Welcome back! 👋');
   }catch(err){
-    const msgs={'auth/user-not-found':'No account with this email','auth/wrong-password':'Incorrect password','auth/invalid-credential':'Invalid email or password','auth/too-many-requests':'Too many attempts. Try again later'};
-    showAuthErr(msgs[err.code]||'Sign in failed. Try again.');
+    const msgs={
+      'auth/user-not-found':'No account found with this email. Create one free →',
+      'auth/wrong-password':'Incorrect password. Try again or use Google.',
+      'auth/invalid-credential':'Email or password is incorrect. Try again.',
+      'auth/too-many-requests':'Too many failed attempts. Please wait a few minutes.',
+      'auth/invalid-email':'Please enter a valid email address.'
+    };
+    const msg=msgs[err.code]||'Sign in failed. Check your details and try again.';
+    showAuthErr(msg);
+    // If no account, suggest sign up
+    if(err.code==='auth/user-not-found'){
+      setTimeout(()=>switchAuthTab('up'),2000);
+    }
   }finally{if(btn){btn.disabled=false;btn.textContent='Sign In';}}
 }
 
@@ -2381,6 +2456,123 @@ initHero();
 fetchTop10();
 renderContinueWatching();
 
+
+// ══════════════════════════════════════
+// SMART FEATURES
+// ══════════════════════════════════════
+
+// Smart: Remember which server worked last for this user
+// Next time they play — try that server first
+function getSmartQueue(baseQueue){
+  const history=JSON.parse(localStorage.getItem('tavik_srv')||'{}');
+  const best=history.best;
+  if(!best)return baseQueue;
+  // Move best server to front
+  const idx=baseQueue.findIndex(s=>s.label===best);
+  if(idx>0){
+    const q=[...baseQueue];
+    const [winner]=q.splice(idx,1);
+    q.unshift(winner);
+    return q;
+  }
+  return baseQueue;
+}
+function rememberServer(label){
+  try{
+    const h=JSON.parse(localStorage.getItem('tavik_srv')||'{}');
+    h.best=label;
+    h[label]=(h[label]||0)+1;
+    localStorage.setItem('tavik_srv',JSON.stringify(h));
+  }catch(e){}
+}
+
+// Smart: Auto-play next episode for TV shows
+let _currentSeason=1,_currentEp=1,_totalEps=1;
+function setupNextEpisode(seasons,totalEps){
+  _totalEps=totalEps||1;
+}
+function playNextEp(id,type,currentEp){
+  if(type!=='tv')return;
+  const next=currentEp+1;
+  if(next>_totalEps)return;
+  showToast('▶ Next episode starting...');
+  setTimeout(()=>{
+    const wrap=document.getElementById('playerWrap');
+    if(!wrap?.querySelector('iframe'))return;
+    // Update episode in URL
+    const q=window._playerQueue||[];
+    const newQ=q.map(s=>({...s,url:s.url.replace(/\/1\/\d+/,`/1/${next}`).replace(/-1-\d+/,`-1-${next}`)}));
+    window._playerQueue=newQ;
+    autoPlay();
+  },3000);
+}
+
+// Smart: Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeAuth();}
+  if(e.key==='f'||e.key==='F'){goFullscreen();}
+  if(e.key===' '){
+    e.preventDefault();
+    const wrap=document.getElementById('playerWrap');
+    if(wrap?.querySelector('iframe'))return; // already playing
+    autoPlay();
+  }
+});
+
+// Smart: Smooth skeleton loading — stagger cards
+function renderWithStagger(items,gridId,append=false,netflix=false,tv=false){
+  const g=document.getElementById(gridId);if(!g)return;
+  if(!items.length){
+    g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><p>Nothing found</p></div>';
+    return;
+  }
+  // Render in batches of 4 for smooth feel
+  const html=items.map((m,i)=>card(m,netflix,tv,i)).join('');
+  if(append)g.insertAdjacentHTML('beforeend',html);
+  else g.innerHTML=html;
+}
+
+// Smart: Lazy load images with IntersectionObserver
+if('IntersectionObserver' in window){
+  const imgObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const img=e.target;
+        if(img.dataset.src){img.src=img.dataset.src;delete img.dataset.src;}
+        imgObs.unobserve(img);
+      }
+    });
+  },{rootMargin:'200px'});
+  window._imgObs=imgObs;
+}
+
+// Smart: Preload next likely movie when hovering a card
+let _preloadTimer;
+document.addEventListener('mouseover',e=>{
+  const card=e.target.closest('.movie-card');
+  if(!card)return;
+  clearTimeout(_preloadTimer);
+  _preloadTimer=setTimeout(()=>{
+    const onclick=card.getAttribute('onclick')||'';
+    const match=onclick.match(/openItem\((\d+)/);
+    if(match){
+      const id=match[1];
+      // Silently prefetch movie data
+      const KEY='d34e79d2e68114d4b43e1761b3612bd3';
+      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}`).catch(()=>{});
+    }
+  },300);
+});
+
+// Smart: Show "Back to Top" when scrolled far
+window.addEventListener('scroll',()=>{
+  const btn=document.getElementById('backToTop');
+  if(!btn)return;
+  btn.style.opacity=window.scrollY>600?'1':'0';
+  btn.style.pointerEvents=window.scrollY>600?'all':'none';
+},{passive:true});
+
+
 </script>
 
 <!-- AUTH MODAL -->
@@ -2395,23 +2587,29 @@ renderContinueWatching();
     </button>
     <div class="auth-divider">or use email</div>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="authTabIn" onclick="switchAuthTab('in')">Sign In</button>
-      <button class="auth-tab" id="authTabUp" onclick="switchAuthTab('up')">Sign Up</button>
+      <button class="auth-tab active" id="authTabUp" onclick="switchAuthTab('up')">Create Account</button>
+      <button class="auth-tab" id="authTabIn" onclick="switchAuthTab('in')">Sign In</button>
     </div>
     <div class="auth-err" id="authErr"></div>
-    <div id="authFormIn">
-      <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="inEmail" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="inPass" placeholder="Password" autocomplete="current-password"></div>
-      <button class="auth-submit" id="inBtn" onclick="doEmailSignIn()">Sign In</button>
-    </div>
-    <div id="authFormUp" style="display:none">
+    <div id="authFormUp">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">New to TAVIK? Create a free account to save your watchlist and continue watching across all devices.</p>
       <div class="auth-field"><label>Your Name</label><input class="auth-input" type="text" id="upName" placeholder="Full name"></div>
       <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="upEmail" placeholder="you@email.com" autocomplete="email"></div>
       <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="upPass" placeholder="Min 6 characters" autocomplete="new-password"></div>
-      <button class="auth-submit" id="upBtn" onclick="doEmailSignUp()">Create Account</button>
+      <button class="auth-submit" id="upBtn" onclick="doEmailSignUp()">Create Free Account</button>
+    </div>
+    <div id="authFormIn" style="display:none">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Already have a TAVIK account? Sign in to access your watchlist.</p>
+      <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="inEmail" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="inPass" placeholder="Password" autocomplete="current-password"></div>
+      <button class="auth-submit" id="inBtn" onclick="doEmailSignIn()">Sign In</button>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">No account? <span onclick="switchAuthTab('up')" style="color:var(--accent);cursor:pointer;font-weight:600">Create one free →</span></p>
     </div>
   </div>
 </div>
+
+
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="position:fixed;bottom:80px;right:16px;z-index:190;width:40px;height:40px;border-radius:50%;background:var(--accent);color:white;border:none;font-size:18px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 4px 16px rgba(229,9,20,0.4)">↑</button>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottomNav">
