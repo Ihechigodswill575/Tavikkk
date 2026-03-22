@@ -11,16 +11,23 @@
 <script type="module">
   import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import{getDatabase,ref,push,onValue,set,get,remove}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import{getAuth,onAuthStateChanged,signInWithPopup,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,GoogleAuthProvider,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import{getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,getRedirectResult,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,GoogleAuthProvider,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   const app=initializeApp({apiKey:"AIzaSyBzUELxbbaL6Wb_M1uNhjwlZHVTorN9XJs",authDomain:"my-whatsapp-2c1af.firebaseapp.com",databaseURL:"https://my-whatsapp-2c1af-default-rtdb.firebaseio.com",projectId:"my-whatsapp-2c1af",storageBucket:"my-whatsapp-2c1af.firebasestorage.app",messagingSenderId:"1089455460888",appId:"1:1089455460888:web:15bd0820546c813febe96d"});
   const db=getDatabase(app);const auth=getAuth(app);const gp=new GoogleAuthProvider();
+  gp.addScope('email');gp.addScope('profile');
+  gp.setCustomParameters({prompt:'select_account'});
   window._fb={db,ref,push,onValue,set,get,remove,auth,gp,ready:true,
     signInGoogle:()=>signInWithPopup(auth,gp),
+    signInGoogleRedirect:()=>signInWithRedirect(auth,gp),
     signInEmail:(e,p)=>signInWithEmailAndPassword(auth,e,p),
     signUpEmail:(e,p)=>createUserWithEmailAndPassword(auth,e,p),
     signOut:()=>signOut(auth),
     updateProfile:(u,d)=>updateProfile(u,d)};
   onAuthStateChanged(auth,u=>{window._user=u||null;try{onAuthChange(u);}catch(e){}});
+  // Handle redirect result on page load
+  getRedirectResult(auth).then(result=>{
+    if(result?.user){try{onAuthChange(result.user);}catch(e){}}
+  }).catch(()=>{});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -1927,6 +1934,37 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── INIT ──
 fetchTrending();fetchPopular();fetchTV();fetchNetflix();
 
+
+// ── GOOGLE SIGN IN — works on mobile (redirect) + desktop (popup) ──
+async function doGoogleSignIn(){
+  if(!window._fb||!window._fb.ready){
+    showAuthErr('Still loading, please wait a moment...');
+    return;
+  }
+  clearAuthErr();
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  try{
+    if(isMobile){
+      // Mobile: use redirect (never blocked)
+      await window._fb.signInGoogleRedirect();
+      // Page will reload — result handled in firebase module
+    }else{
+      // Desktop: popup works fine
+      const result=await window._fb.signInGoogle();
+      if(result.user){closeAuth();showToast('Welcome '+( result.user.displayName||'')+'! 👋');}
+    }
+  }catch(e){
+    if(e.code==='auth/popup-closed-by-user')return;
+    if(e.code==='auth/popup-blocked'){
+      // Fallback to redirect
+      try{await window._fb.signInGoogleRedirect();}
+      catch(e2){showAuthErr('Could not open Google. Try email instead.');}
+    }else{
+      showAuthErr('Google sign-in failed. Try email or check your connection.');
+    }
+  }
+}
+
 // ── AUTH ──
 let _watchlist={};
 
@@ -1949,17 +1987,6 @@ function switchAuthTab(t){
 }
 function showAuthErr(msg){const e=document.getElementById('authErr');if(e){e.textContent=msg;e.classList.add('show');}}
 function clearAuthErr(){const e=document.getElementById('authErr');if(e){e.textContent='';e.classList.remove('show');}}
-
-async function doGoogleSignIn(){
-  if(!window._fb){showAuthErr('Loading... try again');return;}
-  try{
-    await window._fb.signInGoogle();
-    closeAuth();
-    showToast('Welcome! 👋');
-  }catch(e){
-    if(e.code!=='auth/popup-closed-by-user')showAuthErr('Google sign-in failed. Try email.');
-  }
-}
 
 async function doEmailSignIn(){
   const e=document.getElementById('inEmail')?.value.trim();
@@ -2303,27 +2330,6 @@ showTab=function(tab,btn){
 // ══════════════════════════════════════
 // BUG FIXES FOR AUTH
 // ══════════════════════════════════════
-
-// Fix: Google popup blocked on mobile — use redirect instead
-async function doGoogleSignIn(){
-  if(!window._fb){showAuthErr('Still loading, please wait...');return;}
-  try{
-    // Try popup first (works on desktop)
-    await window._fb.signInGoogle();
-    closeAuth();
-    showToast('Welcome! 👋');
-  }catch(e){
-    if(e.code==='auth/popup-blocked'||e.code==='auth/cancelled-popup-request'){
-      // Popup blocked — try redirect
-      try{
-        const{getAuth,signInWithRedirect,GoogleAuthProvider}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-        await signInWithRedirect(window._fb.auth,window._fb.gp);
-      }catch(e2){showAuthErr('Google sign-in failed. Use email instead.');}
-    }else if(e.code!=='auth/popup-closed-by-user'){
-      showAuthErr('Google sign-in failed. Try email instead.');
-    }
-  }
-}
 
 // Fix: Enter key submits auth forms
 document.addEventListener('keydown',e=>{
