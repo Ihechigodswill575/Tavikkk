@@ -23,25 +23,31 @@
     signUpEmail:(e,p)=>createUserWithEmailAndPassword(auth,e,p),
     signOut:()=>signOut(auth),
     updateProfile:(u,d)=>updateProfile(u,d)};
-  onAuthStateChanged(auth,u=>{
+
+  // Queue auth state — flush once page JS is ready
+  window._authQueue=[];
+  window._authReady=false;
+  function flushAuth(u){
     window._user=u||null;
-    // Retry until onAuthChange is defined (it loads after this module)
-    const attempt=(tries)=>{
-      if(typeof onAuthChange==='function'){onAuthChange(u);}
-      else if(tries>0){setTimeout(()=>attempt(tries-1),200);}
-    };
-    attempt(20);
-  });
-  // Handle redirect result on page load
-  getRedirectResult(auth).then(result=>{
-    if(result?.user){
-      window._user=result.user;
-      const attempt=(tries)=>{
-        if(typeof onAuthChange==='function'){onAuthChange(result.user);}
-        else if(tries>0){setTimeout(()=>attempt(tries-1),200);}
-      };
-      attempt(20);
+    if(window._authReady&&typeof onAuthChange==='function'){
+      onAuthChange(u);
+    } else {
+      window._authQueue.push(u);
     }
+  }
+  window._flushAuthQueue=function(){
+    window._authReady=true;
+    while(window._authQueue.length){
+      const u=window._authQueue.shift();
+      if(typeof onAuthChange==='function')onAuthChange(u);
+    }
+  };
+
+  onAuthStateChanged(auth,u=>flushAuth(u));
+
+  // Handle Google redirect on page load
+  getRedirectResult(auth).then(result=>{
+    if(result?.user){flushAuth(result.user);}
   }).catch(()=>{});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -824,23 +830,7 @@ async function fetchNetflix(page=1){
   const d=await api(`/discover/movie?with_watch_providers=8&watch_region=US&sort_by=popularity.desc&page=${page}`);
   render((d.results||[]).slice(0,12),'netflixGrid',page>1,true);
 }
-async function fetchSearch(q){
-  if(!q.trim()){
-    document.getElementById('searchSection').classList.remove('active');
-    document.getElementById('searchSection').style.display='none';
-    return;
-  }
-  const ss=document.getElementById('searchSection');
-  ss.classList.add('active');ss.style.display='block';
-  document.getElementById('searchGrid').innerHTML='<div class="spinner"></div>';
-  setTimeout(()=>ss.scrollIntoView({behavior:'smooth',block:'start'}),100);
-  const d=await api(`/search/${searchType}?query=${encodeURIComponent(q)}&page=1`);
-  if(!d.results?.length){
-    document.getElementById('searchGrid').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><div style="font-size:44px;margin-bottom:14px">🔍</div><h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);margin-bottom:8px">No Results</h3><p>Try a different title</p></div>`;
-    return;
-  }
-  render(d.results.slice(0,20),'searchGrid',false,false,searchType==='tv');
-}
+// search handled below
 
 // ── SORT ──
 function sortResults(order,btn){
@@ -1424,16 +1414,85 @@ function loadFbReviews(id){
 // ── SEARCH ──
 function handleSearch(val){
   clearTimeout(searchTimeout);
-  if(!val){
-    document.getElementById('searchSection').classList.remove('active');
-    document.getElementById('searchSection').style.display='none';
+  const ss=document.getElementById('searchSection');
+  const grid=document.getElementById('searchGrid');
+  if(!val||!val.trim()){
+    // Restore home
+    if(ss){ss.classList.remove('active');ss.style.display='none';}
+    document.getElementById('heroSection').style.display='flex';
+    ['trendingSection','popularSection','tvSection','netflixSection'].forEach(id=>{
+      const e=document.getElementById(id);if(e)e.style.display='block';
+    });
     return;
   }
-  ['trendingSection','popularSection','tvSection','netflixSection','footerEl'].forEach(id=>{
-    const e=document.getElementById(id);if(e)e.style.display='block';
-  });
+  // Hide home, show search
   document.getElementById('heroSection').style.display='none';
-  searchTimeout=setTimeout(()=>fetchSearch(val),400);
+  ['trendingSection','popularSection','tvSection','netflixSection'].forEach(id=>{
+    const e=document.getElementById(id);if(e)e.style.display='none';
+  });
+  if(ss){ss.classList.add('active');ss.style.display='block';}
+  // Show instant skeleton while typing
+  if(grid&&val.length>=2){
+    grid.innerHTML='<div class="skeleton"></div>'.repeat(6);
+  }
+  // Debounce — wait for user to stop typing (300ms)
+  const delay=val.length<=2?600:300;
+  searchTimeout=setTimeout(()=>smartSearch(val),delay);
+}
+
+// ── SMART SEARCH — searches everything simultaneously ──
+async function smartSearch(q){
+  if(!q||!q.trim())return;
+  const grid=document.getElementById('searchGrid');
+  if(!grid)return;
+  grid.innerHTML='<div class="spinner" style="margin:40px auto"></div>';
+
+  // Search movies + TV + anime all at once
+  const enc=encodeURIComponent(q);
+  const [movies,tvShows,animeData]=await Promise.all([
+    api(`/search/movie?query=${enc}&page=1`).catch(()=>({results:[]})),
+    api(`/search/tv?query=${enc}&page=1`).catch(()=>({results:[]})),
+    queryAniList(
+      `query($s:String){Page(page:1,perPage:4){media(type:ANIME,search:$s,sort:POPULARITY_DESC){id title{romaji english}coverImage{large}averageScore episodes status}}}`,
+      {s:q}
+    ).catch(()=>null),
+  ]);
+
+  const movieResults=(movies.results||[]).slice(0,8);
+  const tvResults=(tvShows.results||[]).slice(0,6);
+  const animeResults=(animeData?.Page?.media||[]).slice(0,4);
+  const total=movieResults.length+tvResults.length+animeResults.length;
+
+  if(!total){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:44px;margin-bottom:12px">🔍</div>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--text);margin-bottom:8px">No Results</h3>
+      <p style="font-size:13px">Try a different title or check spelling</p>
+    </div>`;
+    return;
+  }
+
+  let html='';
+
+  // Movies section
+  if(movieResults.length){
+    html+=`<div style="grid-column:1/-1;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:8px 0 4px">Movies</div>`;
+    html+=movieResults.map((m,i)=>card(m,false,false,i)).join('');
+  }
+
+  // TV section
+  if(tvResults.length){
+    html+=`<div style="grid-column:1/-1;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:16px 0 4px">TV Shows</div>`;
+    html+=tvResults.map((m,i)=>card(m,false,true,i)).join('');
+  }
+
+  // Anime section
+  if(animeResults.length){
+    html+=`<div style="grid-column:1/-1;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:16px 0 4px">Anime</div>`;
+    html+=animeResults.map((a,i)=>animeCard(a,i)).join('');
+  }
+
+  grid.innerHTML=html;
 }
 
 function setSearchType(type){
@@ -1562,8 +1621,7 @@ async function omdbGet(imdbId){
 // ── COMBINED SEARCH — TMDB + OMDb + AniList always ──
 async function fetchSearch(q){
   if(!q.trim()){
-    document.getElementById('searchSection').classList.remove('active');
-    document.getElementById('searchSection').style.display='none';
+
     return;
   }
   const ss=document.getElementById('searchSection');
@@ -1594,7 +1652,10 @@ async function fetchSearch(q){
       id:m.imdbID, title:m.Title,
       release_date:m.Year+'-01-01',
       poster_path:null, vote_average:0,
-      _omdb:true, _poster:m.Poster!=='N/A'?m.Poster:null, _imdbId:m.imdbID
+      _omdb:true,
+      // Use OMDb poster directly — it works when URL is valid
+      _poster:(m.Poster&&m.Poster!=='N/A'&&!m.Poster.includes('N/A'))?m.Poster:null,
+      _imdbId:m.imdbID
     }));
 
   // AniList results — only show if searching movies (not TV)
@@ -1619,23 +1680,18 @@ async function fetchSearch(q){
 
   // TMDB results
   if(tmdbResults.length){
-    html+=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-bottom:4px">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--text)">TMDB</span>
-      <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">${tmdbResults.length} results</span>
-    </div>`;
+
     html+=tmdbResults.map((m,i)=>card(m,false,searchType==='tv',i)).join('');
   }
 
   // OMDb results
   if(omdbResults.length){
-    html+=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:20px 0 4px">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#f5c518">IMDb / OMDb</span>
-      <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">${omdbResults.length} extra results</span>
-    </div>`;
+
     html+=omdbResults.map((m,i)=>{
-      const poster=m._poster
-        ?`<img class="movie-poster" src="${m._poster}" alt="${m.title}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>🎬</div>'">`
-        :`<div class="no-poster">🎬</div>`;
+      // Use OMDb image API as fallback for missing posters
+      const posterSrc=m._poster||`https://img.omdbapi.com/?i=${m._imdbId}&h=600&apikey=trilogy`;
+      const poster=`<img class="movie-poster" src="${posterSrc}" alt="${m.title}" loading="lazy"
+        onerror="if(this.src.includes('omdbapi.com')){this.outerHTML='<div class=no-poster>🎬</div>'}else{this.src='https://img.omdbapi.com/?i=${m._imdbId}&h=600&apikey=trilogy';}">`;
       return `<div class="movie-card" style="animation-delay:${i*0.04}s" onclick="openOmdbItem('${m._imdbId}','${m.title.replace(/'/g,"\\'")}')">
         <div style="position:absolute;top:8px;right:8px;background:#f5c518;color:#000;font-size:8px;font-family:'Space Mono',monospace;padding:2px 6px;border-radius:4px;font-weight:700">IMDb</div>
         ${poster}
@@ -1650,10 +1706,7 @@ async function fetchSearch(q){
 
   // AniList anime results
   if(animeResults.length){
-    html+=`<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:20px 0 4px">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#ff6b9d">🎌 ANIME</span>
-      <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">${animeResults.length} anime results</span>
-    </div>`;
+
     html+=animeResults.map((a,i)=>animeCard(a,i)).join('');
   }
 
@@ -2058,6 +2111,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 // ── INIT ──
 fetchTrending();fetchPopular();fetchTV();fetchNetflix();
 
+// ── AUTH READY — flush any queued auth state now that all functions are defined ──
+if(typeof window._flushAuthQueue==='function')window._flushAuthQueue();
+// Also retry after a short delay for slow connections
+setTimeout(()=>{if(typeof window._flushAuthQueue==='function')window._flushAuthQueue();},1000);
+
 
 // ── GOOGLE SIGN IN — works on mobile (redirect) + desktop (popup) ──
 async function doGoogleSignIn(){
@@ -2166,6 +2224,7 @@ async function doEmailSignUp(){
 }
 
 function onAuthChange(user){
+  window._user=user||null;
   const area=document.getElementById('navAuthArea');
   if(!area)return;
   if(user){
@@ -2177,29 +2236,30 @@ function onAuthChange(user){
       overlay.classList.remove('open');
       document.body.style.overflow='';
     }
-    // Show welcome toast
-    showToast('Welcome '+(user.displayName||'')+'! 👋');
+    // Show welcome toast only once per session
+    if(!window._welcomeShown){
+      window._welcomeShown=true;
+      showToast('Welcome '+(user.displayName?.split(' ')[0]||'')+'! 👋');
+    }
     // Load watchlist
     loadWatchlist();
     // Update bottom nav profile icon
     const bpBtn=document.getElementById('bn-profile');
     if(bpBtn){
-      const old=bpBtn.querySelector('svg')||bpBtn.querySelector('div[style]');
-      if(old)old.outerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;font-family:'DM Sans',sans-serif">${init}</div>`;
+      const old=bpBtn.querySelector('svg')||bpBtn.querySelector('div[style*="border-radius:50%"]');
+      if(old)old.outerHTML=`<div style="width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;font-family:'DM Sans',sans-serif;flex-shrink:0">${init}</div>`;
     }
-    // Always refresh profile if visible
-    setTimeout(()=>{
-      if(document.getElementById('profilePage')?.classList.contains('show'))renderProfile();
-      else renderProfile(); // pre-render for next open
-    },100);
+    // Always refresh profile page (whether open or not — pre-render)
+    renderProfile();
   }else{
     area.innerHTML=`<button class="nav-signin-btn" onclick="openAuth()">Sign In</button>`;
-    // Reset profile icon
+    // Reset bottom nav profile icon
     const bpBtn=document.getElementById('bn-profile');
     if(bpBtn){
-      const d=bpBtn.querySelector('div[style]');
+      const d=bpBtn.querySelector('div[style*="border-radius:50%"]');
       if(d)d.outerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
     }
+    renderProfile();
   }
 }
 
@@ -2267,6 +2327,12 @@ function renderWatchlist(){
 function renderProfile(){
   const el=document.getElementById('profileContent');
   if(!el)return;
+  // If auth not yet resolved, show loading and retry
+  if(!window._authReady){
+    el.innerHTML='<div style="text-align:center;padding:60px"><div class="spinner" style="margin:0 auto 16px;width:28px;height:28px;border-width:2px"></div><p style="color:var(--muted);font-size:13px">Loading...</p></div>';
+    setTimeout(renderProfile,500);
+    return;
+  }
   const user=window._user;
   if(!user){
     el.innerHTML=`
