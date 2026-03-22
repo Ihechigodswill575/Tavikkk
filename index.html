@@ -23,10 +23,25 @@
     signUpEmail:(e,p)=>createUserWithEmailAndPassword(auth,e,p),
     signOut:()=>signOut(auth),
     updateProfile:(u,d)=>updateProfile(u,d)};
-  onAuthStateChanged(auth,u=>{window._user=u||null;try{onAuthChange(u);}catch(e){}});
+  onAuthStateChanged(auth,u=>{
+    window._user=u||null;
+    // Retry until onAuthChange is defined (it loads after this module)
+    const attempt=(tries)=>{
+      if(typeof onAuthChange==='function'){onAuthChange(u);}
+      else if(tries>0){setTimeout(()=>attempt(tries-1),200);}
+    };
+    attempt(20);
+  });
   // Handle redirect result on page load
   getRedirectResult(auth).then(result=>{
-    if(result?.user){try{onAuthChange(result.user);}catch(e){}}
+    if(result?.user){
+      window._user=result.user;
+      const attempt=(tries)=>{
+        if(typeof onAuthChange==='function'){onAuthChange(result.user);}
+        else if(tries>0){setTimeout(()=>attempt(tries-1),200);}
+      };
+      attempt(20);
+    }
   }).catch(()=>{});
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -2028,16 +2043,32 @@ function onAuthChange(user){
   if(user){
     const init=(user.displayName||user.email||'U')[0].toUpperCase();
     area.innerHTML=`<div class="nav-avatar" onclick="showTab('profile')" title="${user.displayName||user.email}">${init}</div>`;
+    // Close auth overlay if open
+    const overlay=document.getElementById('authOverlay');
+    if(overlay?.classList.contains('open')){
+      overlay.classList.remove('open');
+      document.body.style.overflow='';
+    }
+    // Show welcome toast
+    showToast('Welcome '+(user.displayName||'')+'! 👋');
     // Load watchlist
     loadWatchlist();
     // Update bottom nav profile icon
-    const bpIcon=document.getElementById('bn-profile');
-    if(bpIcon){
-      const svg=bpIcon.querySelector('svg');
-      if(svg)svg.outerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;font-family:'DM Sans',sans-serif">${init}</div>`;
+    const bpBtn=document.getElementById('bn-profile');
+    if(bpBtn){
+      const old=bpBtn.querySelector('svg')||bpBtn.querySelector('div[style]');
+      if(old)old.outerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;font-family:'DM Sans',sans-serif">${init}</div>`;
     }
+    // If profile page is open, refresh it
+    if(document.getElementById('profilePage')?.classList.contains('show'))renderProfile();
   }else{
     area.innerHTML=`<button class="nav-signin-btn" onclick="openAuth()">Sign In</button>`;
+    // Reset profile icon
+    const bpBtn=document.getElementById('bn-profile');
+    if(bpBtn){
+      const d=bpBtn.querySelector('div[style]');
+      if(d)d.outerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+    }
   }
 }
 
