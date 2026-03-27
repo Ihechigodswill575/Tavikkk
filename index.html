@@ -2,101 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TAVIK · JUSTWATCH</title>
-<meta name="description" content="Discover movies and TV shows. Stream, rate and review everything.">
-<meta name="copyright" content="TAVIK JUSTWATCH © 2026">
-<meta name="author" content="Tavikk">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TAVIK · JUSTWATCH — Movies, TV Shows & Anime</title>
+<meta name="description" content="Discover and stream movies, TV shows, anime & Nollywood. Browse trending titles, save your watchlist — free.">
+<meta name="keywords" content="movies, tv shows, anime, streaming, nollywood, k-drama, justwatch">
+<meta name="theme-color" content="#080b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TAVIK">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tavik.vercel.app">
+<meta property="og:title" content="TAVIK · JUSTWATCH — Stream Movies & TV Free">
+<meta property="og:description" content="Browse trending movies, TV shows, anime & Nollywood. Save your watchlist and stream free.">
+<meta property="og:image" content="https://image.tmdb.org/t/p/w780/1E5baAaEse26fej7uHcjOgEE2t2.jpg">
+<meta property="og:site_name" content="TAVIK JUSTWATCH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TAVIK — Stream Movies & TV Free">
+<meta name="twitter:description" content="Trending movies, TV, anime & Nollywood. Watch free.">
+<meta name="twitter:image" content="https://image.tmdb.org/t/p/w780/1E5baAaEse26fej7uHcjOgEE2t2.jpg">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#080b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TAVIK">
+<!-- Open Graph — WhatsApp, Facebook, Twitter previews -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tavik.vercel.app">
+<meta property="og:title" content="TAVIK · JUSTWATCH — Stream Movies & TV Free">
+<meta property="og:description" content="Browse trending movies, TV shows, anime & Nollywood. Save your watchlist and stream free — all in one place.">
+<meta property="og:image" content="https://tavik.vercel.app/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="TAVIK JUSTWATCH">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TAVIK · JUSTWATCH — Stream Movies & TV Free">
+<meta name="twitter:description" content="Browse trending movies, TV shows, anime & Nollywood. Stream free.">
+<meta name="twitter:image" content="https://tavik.vercel.app/og-image.jpg">
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<!-- Firebase -->
 <script>
-// ── TAVIK AUTH ENGINE ──
-// Loads Firebase SDK dynamically so it's ready before any user action
-// No module/async timing issues — everything synchronised
 (function(){
-  const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/9.23.0/';
-  const CFG = {
-    apiKey:"AIzaSyBzUELxbbaL6Wb_M1uNhjwlZHVTorN9XJs",
-    authDomain:"my-whatsapp-2c1af.firebaseapp.com",
-    databaseURL:"https://my-whatsapp-2c1af-default-rtdb.firebaseio.com",
-    projectId:"my-whatsapp-2c1af",
-    storageBucket:"my-whatsapp-2c1af.firebasestorage.app",
-    messagingSenderId:"1089455460888",
-    appId:"1:1089455460888:web:15bd0820546c813febe96d"
-  };
-
-  // Load scripts sequentially
-  function loadScript(src){
-    return new Promise((res,rej)=>{
-      const s=document.createElement('script');
-      s.src=src; s.type='module';
-      s.onload=res; s.onerror=rej;
-      document.head.appendChild(s);
-    });
+  var scripts=['https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'];
+  var loaded=0;
+  function loadNext(){
+    if(loaded>=scripts.length){initFirebase();return;}
+    var s=document.createElement('script');
+    s.src=scripts[loaded++];
+    s.onload=function(){
+      if(loaded===1){
+        scripts.push('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js');
+        scripts.push('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js');
+      }
+      loadNext();
+    };
+    document.head.appendChild(s);
   }
-
-  window._fbReady=false;
-  window._user=null;
-  window._authCallbacks=[];
-
-  // Called by page code to register for auth changes
-  window.onAuthReady=function(cb){
-    if(window._fbReady){cb(window._user);}
-    else{window._authCallbacks.push(cb);}
-  };
-
-  // Internal — fires when Firebase is fully loaded and auth state known
-  function _fireAuth(user){
-    window._user=user||null;
-    window._fbReady=true;
-    // Call all waiting callbacks
-    window._authCallbacks.forEach(cb=>{try{cb(user);}catch(e){}});
-    window._authCallbacks=[];
-    // Call onAuthChange if defined (main app function)
-    if(typeof onAuthChange==='function') onAuthChange(user);
-  }
-
-  // Bootstrap Firebase using compat SDK (no module issues)
-  Promise.all([
-    loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'),
-  ]).then(()=>Promise.all([
-    loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js'),
-    loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'),
-  ])).then(()=>{
-    const app=firebase.initializeApp(CFG);
-    const auth=firebase.auth();
-    const db=firebase.database();
-
-    // Expose on window for use throughout app
+  function initFirebase(){
+    var cfg={apiKey:"AIzaSyBzUELxbbaL6Wb_M1uNhjwlZHVTorN9XJs",authDomain:"my-whatsapp-2c1af.firebaseapp.com",databaseURL:"https://my-whatsapp-2c1af-default-rtdb.firebaseio.com",projectId:"my-whatsapp-2c1af",storageBucket:"my-whatsapp-2c1af.firebasestorage.app",messagingSenderId:"1089455460888",appId:"1:1089455460888:web:15bd0820546c813febe96d"};
+    firebase.initializeApp(cfg);
+    var auth=firebase.auth();
+    var db=firebase.database();
     window._fb={
-      auth, db,
-      ready:true,
-      ref:(path)=>db.ref(path),
-      set:(ref,val)=>ref.set(val),
-      get:(ref)=>ref.get(),
-      remove:(ref)=>ref.remove(),
-      push:(ref,val)=>ref.push(val),
-      onValue:(ref,cb)=>ref.on('value',snap=>cb(snap)),
-      signInEmail:(e,p)=>auth.signInWithEmailAndPassword(e,p),
-      signUpEmail:(e,p)=>auth.createUserWithEmailAndPassword(e,p),
-      signOut:()=>auth.signOut(),
-      updateProfile:(u,d)=>u.updateProfile(d),
-      signInGoogle:()=>{
-        const gp=new firebase.auth.GoogleAuthProvider();
+      auth:auth,db:db,ready:true,
+      ref:function(p){return db.ref(p);},
+      set:function(r,v){return r.set(v);},
+      get:function(r){return r.get();},
+      remove:function(r){return r.remove();},
+      push:function(r,v){return r.push(v);},
+      onValue:function(r,cb){r.on('value',function(s){cb(s);});},
+      signInEmail:function(e,p){return auth.signInWithEmailAndPassword(e,p);},
+      signUpEmail:function(e,p){return auth.createUserWithEmailAndPassword(e,p);},
+      signOut:function(){return auth.signOut();},
+      updateProfile:function(u,d){return u.updateProfile(d);},
+      signInGoogle:function(){
+        var gp=new firebase.auth.GoogleAuthProvider();
         gp.setCustomParameters({prompt:'select_account'});
         return auth.signInWithPopup(gp);
       }
     };
-
-    // Single source of truth — onAuthStateChanged
-    auth.onAuthStateChanged(user=>{
-      _fireAuth(user);
+    auth.onAuthStateChanged(function(user){
+      window._user=user||null;
+      window._fbReady=true;
+      if(typeof onAuthChange==='function')onAuthChange(user);
     });
-
-  }).catch(err=>{
-    console.error('Firebase load failed:',err);
-    // Still fire null so app doesn't hang
-    _fireAuth(null);
-  });
+  }
+  window._fbReady=false;
+  loadNext();
 })();
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -179,10 +176,7 @@ main{padding:80px 48px 60px}
 .movie-card:hover::after{background:rgba(0,0,0,0.4);opacity:1}
 .movie-poster{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--surface);transition:transform 0.3s}
 .movie-card:hover .movie-poster{transform:scale(1.05)}
-.no-poster{width:100%;aspect-ratio:2/3;background:linear-gradient(160deg,#141920 0%,#0d1117 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;position:relative;overflow:hidden}
-.no-poster::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(229,9,20,0.06),transparent 70%)}
-.no-poster-icon{width:44px;height:44px;opacity:0.2}
-.no-poster-title{font-size:10px;color:rgba(255,255,255,0.35);text-align:center;font-family:'DM Sans',sans-serif;font-weight:600;line-height:1.4;padding:0 4px;max-height:42px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.no-poster{width:100%;aspect-ratio:2/3;background:linear-gradient(135deg,var(--surface),var(--hover));display:flex;align-items:center;justify-content:center;font-size:36px}
 .movie-info{padding:10px 12px 12px}
 .movie-title{font-size:12px;font-weight:600;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .movie-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
@@ -300,12 +294,12 @@ main{padding:80px 48px 60px}
 .anime-filter-btn.active{background:#ff6b9d;border-color:#ff6b9d;color:white;font-weight:700}
 
 footer{background:var(--surface);border-top:1px solid var(--border);padding:40px 48px 32px;margin-top:40px}
-.footer-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;margin-bottom:32px}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:32px;margin-bottom:32px}
 .footer-brand p{font-size:13px;color:var(--muted);line-height:1.7;margin-top:10px}
 .footer-col h4{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
 .footer-col a{display:block;font-size:13px;color:#c0c8d4;margin-bottom:8px;cursor:pointer;transition:color 0.2s;text-decoration:none}
 .footer-col a:hover{color:var(--accent)}
-.footer-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;flex-direction:column;gap:6px}
 .footer-bottom p{font-size:12px;color:var(--muted)}
 
 /* ── TOAST ── */
@@ -329,8 +323,8 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   nav{padding:0 16px;gap:8px}
   main{padding:80px 16px 40px}
   .hero{padding:0 20px 60px}
-  footer{padding:32px 20px 24px}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  footer{padding:24px 16px 20px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:16px}
 }
 @media(max-width:600px){
   .search-input{width:130px}
@@ -340,7 +334,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   .modal{border-radius:16px}
   .modal-body{padding:16px 16px 24px}
   .modal-title{font-size:28px}
-  .footer-grid{grid-template-columns:1fr;gap:20px}
+  .footer-grid{grid-template-columns:1fr;gap:16px}
   .hero{padding:0 16px 48px}
   .player-btn{font-size:10px;padding:5px 10px}
 }
@@ -407,95 +401,42 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 @media(max-width:900px){
   .nav-tabs{display:none!important}
   .bottom-nav{display:block!important}
-  main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
-  footer{margin-bottom:calc(62px + env(safe-area-inset-bottom,0px))}
-  nav{padding:0 12px;gap:6px;height:58px}
-  main{padding-top:70px}
-  .hero{padding:0 16px 56px;min-height:70vh}
-  .modal-body{padding:16px 14px 28px}
-  .modal{max-height:94vh}
-  .hero-stats{display:none}
-}
-@media(max-width:480px){
-  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-  .hero-title{font-size:40px;letter-spacing:1px}
-  .hero-desc{font-size:13px}
-  .modal-title{font-size:24px}
-  nav{height:54px;padding:0 10px}
-  .logo{font-size:20px}
-  .search-input{width:110px;font-size:12px}
-  .search-input:focus{width:150px}
-  .nav-signin-btn{padding:6px 10px;font-size:11px}
-  .chips{gap:5px}
-  .chip{font-size:9px;padding:3px 7px}
-  .cast-grid{grid-template-columns:repeat(auto-fill,minmax(58px,1fr))}
-  .cast-avatar{width:44px;height:44px}
-  footer{padding:16px 12px 12px}
-  .footer-grid{grid-template-columns:1fr;gap:12px}
-}
-@media(max-width:360px){
-  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
-  .hero-title{font-size:34px}
-  .modal-title{font-size:20px}
-  .logo{font-size:18px}
-  .search-input{width:90px}
-  .search-input:focus{width:120px}
-  .bnav-btn span{font-size:8px}
+  main{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+  footer{margin-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
+  .hero{padding:0 20px 60px}
+  .search-input{width:140px}
+  .search-input:focus{width:180px}
 }
 @media(max-width:600px){
   .movie-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
   .hero-title{font-size:46px}
   .modal-body{padding:16px 16px 24px}
 }
-@media(orientation:landscape) and (max-height:500px){
-  .hero{min-height:auto;padding:8px 16px 30px}
-  .hero-title{font-size:28px}
-  .hero-desc{display:none}
-  nav{height:48px}
-  main{padding-top:55px}
-}
-@media(min-width:1200px){
-  main{max-width:1400px;margin:0 auto;padding:80px 48px 60px}
-  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}
-}
-  .hero-title{font-size:46px}
-  .modal-body{padding:16px 16px 24px}
-}
 
 
-/* ── DOWNLOAD PANEL ── */
-.dl-panel{display:none;position:fixed;bottom:80px;right:16px;width:320px;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.7);z-index:500;overflow:hidden;transition:transform 0.3s,opacity 0.3s}
-.dl-panel.show{display:block;animation:slideUp 0.3s ease}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.dl-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border)}
-.dl-panel-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--text)}
-.dl-panel-close{width:26px;height:26px;border-radius:50%;background:var(--surface);border:none;color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
-.dl-quality-row{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border)}
-.dl-q-btn{flex:1;padding:8px 6px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center}
+.dl-q-btn{flex:1;padding:7px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center;line-height:1.3}
 .dl-q-btn.active{background:var(--accent);border-color:var(--accent);color:white}
-.dl-q-btn small{display:block;font-size:9px;font-weight:400;opacity:0.7;margin-top:1px}
-.dl-source-list{padding:10px 16px 0}
-.dl-source-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.dl-source-item:last-child{border-bottom:none}
-.dl-source-name{font-size:12px;font-weight:600;color:var(--text)}
-.dl-source-info{font-size:10px;color:var(--muted);margin-top:1px}
-.dl-source-btn{padding:5px 12px;border-radius:7px;background:var(--accent);color:white;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap}
-.dl-source-btn:hover{background:#c4070f}
-.dl-source-btn.dl-ing{background:var(--surface);color:var(--green);border:1px solid var(--green);cursor:default}
-.dl-source-btn.dl-done{background:rgba(33,208,122,0.15);color:var(--green);border:1px solid rgba(33,208,122,0.3);cursor:default}
-.dl-source-btn.dl-fail{background:rgba(229,9,20,0.1);color:var(--accent);border:1px solid rgba(229,9,20,0.2);cursor:pointer}
-/* Floating download manager */
-.dl-fab{position:fixed;bottom:80px;right:16px;z-index:499;display:none;flex-direction:column;align-items:flex-end;gap:8px}
-.dl-fab.show{display:flex}
-.dl-badge{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.5);cursor:pointer;min-width:200px}
-.dl-badge-icon{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#21d07a,#1ab568);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;position:relative}
-.dl-badge-ring{position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent;border-top-color:#21d07a;animation:spin 1s linear infinite}
-.dl-badge-text{flex:1}
-.dl-badge-title{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
-.dl-badge-sub{font-size:10px;color:var(--muted);margin-top:1px}
-.dl-badge-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
-.dl-badge-fill{height:100%;background:linear-gradient(90deg,#21d07a,#1ab568);border-radius:2px;transition:width 0.4s ease;width:0%}
-@media(max-width:480px){.dl-panel{bottom:70px;right:8px;left:8px;width:auto}}
+.dl-q-btn small{display:block;font-size:8px;font-weight:400;opacity:0.7}
+/* hero */
+.hero-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
+.hero-backdrop.active{opacity:0.55}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,11,15,0.95) 0%,rgba(8,11,15,0.5) 50%,rgba(8,11,15,0.1) 100%),linear-gradient(to top,rgba(8,11,15,1) 0%,rgba(8,11,15,0.3) 40%,transparent 70%)}
+.hero-dots{position:absolute;bottom:24px;right:24px;z-index:3;display:flex;gap:6px}
+.hero-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.3);cursor:pointer;transition:all 0.3s;border:none}
+.hero-dot.active{width:20px;background:var(--accent)}
+/* no-poster */
+.no-poster{width:100%;aspect-ratio:2/3;background:linear-gradient(160deg,#141920,#0d1117);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px}
+/* 360px */
+@media(max-width:360px){
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+  .hero-title{font-size:34px}
+  .logo{font-size:18px}
+  .bnav-btn span{font-size:8px}
+}
+
+
+.ep-picker{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px}
+.ep-picker select{max-width:100%}
 
 </style>
 </head>
@@ -504,7 +445,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 <!-- INTRO -->
 <div id="introScreen">
   <div class="intro-logo">TAVIK</div>
-  <div class="intro-sub">JUSTWATCH</div>
+  <div class="intro-sub">· JUSTWATCH ·</div>
   <div class="intro-bar"><div class="intro-fill"></div></div>
 </div>
 
@@ -516,6 +457,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     <button class="nav-tab" onclick="showTab('movies',this)">🎬 TavFlix</button>
     <button class="nav-tab" onclick="showTab('tvshows',this)">📺 TavStream</button>
     <button class="nav-tab" onclick="showTab('naija',this)">🇳🇬 TavNaija</button>
+    <button class="nav-tab" onclick="showTab('toons',this)">🎨 TavToons</button>
     <button class="nav-tab" onclick="showTab('anime',this)">🎌 TavAnime</button>
     <button class="nav-tab" onclick="showTab('music',this)">🎵 TavBeats</button>
     <button class="nav-tab" onclick="showTab('trending',this)">🔥 Trending</button>
@@ -536,6 +478,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   <button class="mobile-tab" onclick="showTab('movies',this);closeMenu()">🎬 TavFlix</button>
   <button class="mobile-tab" onclick="showTab('tvshows',this);closeMenu()">📺 TavStream</button>
   <button class="mobile-tab" onclick="showTab('naija',this);closeMenu()">🇳🇬 TavNaija</button>
+  <button class="mobile-tab" onclick="showTab('toons',this);closeMenu()">🎨 TavToons</button>
   <button class="mobile-tab" onclick="showTab('anime',this);closeMenu()">🎌 TavAnime</button>
   <button class="mobile-tab" onclick="showTab('music',this);closeMenu()">🎵 TavBeats</button>
   <button class="mobile-tab" onclick="showTab('trending',this);closeMenu()">🔥 Trending</button>
@@ -661,7 +604,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 
     <!-- YouTube Nollywood Playlist -->
     <div style="margin-bottom:32px">
-      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Free to Watch</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">▶ FREE NOLLYWOOD ON YOUTUBE</div>
       <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;background:#000">
         <iframe src="https://www.youtube.com/embed/videoseries?list=PLErs2LocSQf2gEPpGaHVSNpmgWZYEVwYL&autoplay=0"
           style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:14px"
@@ -670,7 +613,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     </div>
 
     <!-- TMDB Nollywood Movies -->
-    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Movies</div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">🎬 NOLLYWOOD MOVIES</div>
     <div class="movie-grid" id="naijaGrid">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -760,6 +703,27 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
     <div id="profileContent"></div>
   </div>
 
+
+  <!-- TAVTOONS — CARTOONS -->
+  <div class="section" id="toonsSection" style="display:none">
+    <div class="section-header">
+      <div class="section-title"><span class="dot" style="background:#7c3aed"></span> 🎨 TavToons</div>
+      <button class="see-all" onclick="loadMoreToons()">Load More →</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Cartoons, Animation & Kids — SpongeBob, Miraculous, Teen Titans & more</p>
+    <!-- Filter buttons -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="toonsFilters">
+      <button class="anime-filter-btn active" onclick="loadToons('all',this)">🎨 All</button>
+      <button class="anime-filter-btn" onclick="loadToons('cn',this)">📺 Cartoon Network</button>
+      <button class="anime-filter-btn" onclick="loadToons('disney',this)">🏰 Disney</button>
+      <button class="anime-filter-btn" onclick="loadToons('nick',this)">🧽 Nickelodeon</button>
+      <button class="anime-filter-btn" onclick="loadToons('pixar',this)">🎬 Pixar</button>
+    </div>
+    <div class="movie-grid" id="toonsGrid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+  </div>
   <!-- PRIVACY -->
   <div class="privacy-page" id="privacyPage">
     <h1>Privacy Policy</h1>
@@ -785,32 +749,61 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
 <!-- FOOTER -->
 <footer id="footerEl">
   <div class="footer-grid">
+
+    <!-- Brand -->
     <div class="footer-brand">
-      <div class="logo">TAVIK<span>· JUSTWATCH</span></div>
-      <p>The home of movies, TV shows, anime & music. Watch anything, anywhere.</p>
+      <div class="logo" style="margin-bottom:10px">TAVIK<span>· JUSTWATCH</span></div>
+      <p>The home of movies, TV shows, anime & music. Watch anything, anywhere — completely free.</p>
+      <!-- Social / Contact badges -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <a href="mailto:ihechigodswill575@gmail.com" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(229,9,20,0.1);border:1px solid rgba(229,9,20,0.2);border-radius:8px;color:var(--text);text-decoration:none;font-size:12px;font-weight:600;transition:all 0.2s" onmouseover="this.style.background='rgba(229,9,20,0.2)'" onmouseout="this.style.background='rgba(229,9,20,0.1)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email Us
+        </a>
+        <a href="https://wa.me/2348145688688" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.2);border-radius:8px;color:var(--text);text-decoration:none;font-size:12px;font-weight:600;transition:all 0.2s" onmouseover="this.style.background='rgba(37,211,102,0.2)'" onmouseout="this.style.background='rgba(37,211,102,0.1)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+      </div>
     </div>
+
+    <!-- Browse -->
     <div class="footer-col">
       <h4>Browse</h4>
-      <a onclick="showTab('movies')">Movies</a>
-      <a onclick="showTab('tvshows')">TV Shows</a>
-      <a onclick="showTab('netflix')">On Netflix</a>
-      <a onclick="showTab('trending')">Trending</a>
+      <a onclick="showTab('movies')">🎬 TavFlix</a>
+      <a onclick="showTab('tvshows')">📺 TavStream</a>
+      <a onclick="showTab('anime')">🎌 TavAnime</a>
+      <a onclick="showTab('toons')">🎨 TavToons</a>
+      <a onclick="showTab('naija')">🇳🇬 TavNaija</a>
+      <a onclick="showTab('music')">🎵 TavBeats</a>
+      <a onclick="showTab('trending')">🔥 Trending</a>
     </div>
+
+    <!-- Contact & Info -->
     <div class="footer-col">
-      <h4>Info</h4>
+      <h4>Contact Us</h4>
+      <a href="mailto:ihechigodswill575@gmail.com" style="display:flex;align-items:center;gap:6px;word-break:break-all">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        ihechigodswill575@gmail.com
+      </a>
+      <a href="https://wa.me/2348145688688" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        +234 814 568 8688
+      </a>
+      <div style="height:8px"></div>
+      <h4 style="margin-top:4px">Info</h4>
       <a onclick="showTab('privacy')">Privacy Policy</a>
-      <a href="https://www.themoviedb.org" target="_blank">TMDB</a>
-      <a href="https://tubitv.com" target="_blank">Tubi (Free)</a>
-      <a href="https://pluto.tv" target="_blank">Pluto TV (Free)</a>
+      <a href="https://www.themoviedb.org" target="_blank">Movie Data — TMDB</a>
     </div>
+
   </div>
   <div class="footer-bottom">
-    <p>© 2026 TAVIK JUSTWATCH. All rights reserved.</p>
-    <p>© 2026 TAVIK</p>
+    <p>© 2026 TAVIK JUSTWATCH — Made with ❤️ by Tavikk</p>
+    <p style="font-size:11px;color:var(--muted)">For support: <a href="mailto:ihechigodswill575@gmail.com" style="color:var(--accent);text-decoration:none">ihechigodswill575@gmail.com</a></p>
   </div>
 </footer>
 
-
+<!-- MOVIE MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -818,13 +811,13 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:40px
   </div>
 </div>
 
-
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 const KEY='d34e79d2e68114d4b43e1761b3612bd3';
 const BASE='https://api.themoviedb.org/3';
-const IMG='https://image.tmdb.org/t/p/w342';
+const IMG='https://image.tmdb.org/t/p/w500';
 const BG='https://image.tmdb.org/t/p/w1280';
 const SM='https://image.tmdb.org/t/p/w185';
 
@@ -847,33 +840,39 @@ window.addEventListener('load', ()=>setTimeout(hideIntro, 2800));
 document.addEventListener('DOMContentLoaded', ()=>setTimeout(hideIntro, 2800));
 
 // ── API ──
+// Smart API cache — 5 min TTL, persisted in sessionStorage
+const _cache={};
 async function api(ep){
   const sep=ep.includes('?')?'&':'?';
+  const url=`${BASE}${ep}${sep}api_key=${KEY}`;
+  // Check memory cache first (instant)
+  const now=Date.now();
+  if(_cache[ep]&&(now-_cache[ep].ts)<300000) return _cache[ep].data;
+  // Check sessionStorage (survives page reload within tab)
   try{
-    const r=await fetch(`${BASE}${ep}${sep}api_key=${KEY}`);
-    if(!r.ok)throw new Error('API error');
-    return r.json();
+    const stored=sessionStorage.getItem('tv_'+ep);
+    if(stored){
+      const parsed=JSON.parse(stored);
+      if(now-parsed.ts<300000){
+        _cache[ep]=parsed;
+        return parsed.data;
+      }
+    }
+  }catch(e){}
+  // Fetch fresh
+  try{
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('API '+r.status);
+    const data=await r.json();
+    const entry={data,ts:now};
+    _cache[ep]=entry;
+    try{sessionStorage.setItem('tv_'+ep,JSON.stringify(entry));}catch(e){}
+    return data;
   }catch(e){
-    console.error('API error:',e);
+    // Return cached stale data if available rather than nothing
+    if(_cache[ep])return _cache[ep].data;
     return{results:[]};
   }
-}
-
-
-// ── SMART IMAGE LOADING ──
-const IMG_SIZES=['https://image.tmdb.org/t/p/w500','https://image.tmdb.org/t/p/w342','https://image.tmdb.org/t/p/w185'];
-
-function noPosterHtml(title,isTV){
-  const safe=(title||'').replace(/"/g,'').replace(/'/g,'').slice(0,40);
-  return '<div class="no-poster"><span style="font-size:28px;opacity:0.18">'+(isTV?'📺':'🎬')+'</span><span class="no-poster-title">'+safe+'</span></div>';
-}
-
-function makePoster(posterPath,title,isTV){
-  if(!posterPath) return noPosterHtml(title,isTV);
-  const safe=(title||'').replace(/"/g,'').replace(/'/g,'');
-  const p342='https://image.tmdb.org/t/p/w342'+posterPath;
-  const p185='https://image.tmdb.org/t/p/w185'+posterPath;
-  return '<img class="movie-poster" src="'+IMG+posterPath+'" alt="'+safe+'" loading="lazy" onerror="var t=this._t=(this._t||0)+1;if(t===1){this.src=\''+p342+'\'}else if(t===2){this.src=\''+p185+'\'}else{this.outerHTML=noPosterHtml(\''+safe+'\','+isTV+')}">';
 }
 
 // ── CARD ──
@@ -889,7 +888,9 @@ function card(m,netflix=false,tv=false,delay=0,rank=0){
   const progress=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
   const prog=progress[m.id];
   const progressBar=prog?`<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.1)"><div style="height:100%;width:${prog}%;background:var(--accent);border-radius:0 0 0 0"></div></div>`:'';
-  const poster=makePoster(m.poster_path,title,isTV);
+  const poster=m.poster_path
+    ?`<img class="movie-poster" src="${IMG}${m.poster_path}" alt="${title}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>${isTV?'📺':'🎬'}</div>'">`
+    :`<div class="no-poster">${isTV?'📺':'🎬'}</div>`;
   // Rank badge for top 10
   const rankBadge=rank?`<div style="position:absolute;bottom:-4px;left:4px;font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;color:rgba(255,255,255,0.07);z-index:0;pointer-events:none">${rank}</div>`:'';
   return `<div class="movie-card" style="animation-delay:${delay*0.04}s;position:relative" onclick="openItem(${m.id},'${type}')">
@@ -1031,19 +1032,18 @@ async function openItem(id,type='movie'){
 
   // Store fallback queue globally so auto-fallback can access it
   window._playerQueue = [
-    {url: vidlinkUrl,   label: 'S1'},
-    {url: vidplusUrl,   label: 'S2'},
-    {url: vidsrcUrl,    label: 'S3'},
-    {url: vidsrcccUrl,  label: 'S4'},
-    {url: embedSuUrl,   label: 'S5'},
-    {url: twoEmbedUrl,  label: 'S6'},
-    {url: hnEmbedUrl,   label: 'S7'},
-    {url: moviesApiUrl, label: 'S8'},
-    {url: autoemUrl,    label: 'S9'},
-    {url: frembedUrl,   label: 'S10'},
+    {url: vidplusUrl,   label: 'Server 1'},
+    {url: vidlinkUrl,   label: 'Server 2'},
+    {url: vidsrcUrl,    label: 'Server 3'},
+    {url: vidsrcccUrl,  label: 'Server 4'},
+    {url: embedSuUrl,   label: 'Server 5'},
+    {url: twoEmbedUrl,  label: 'Server 6'},
+    {url: hnEmbedUrl,   label: 'Server 7'},
+    {url: moviesApiUrl, label: 'Server 8'},
+    {url: autoemUrl,    label: 'Server 9'},
+    {url: frembedUrl,   label: 'Server 10'},
   ];
   window._playerIndex = 0;
-  window._currentMovie={id,type,title:item.title||item.name||'Unknown',poster:item.poster_path||'',year:(item.release_date||item.first_air_date||'').slice(0,4)};
 
   document.getElementById('modalContent').innerHTML=`
     <div style="height:260px;overflow:hidden;border-radius:20px 20px 0 0;position:relative">
@@ -1064,10 +1064,10 @@ async function openItem(id,type='movie'){
       </div>
       <p class="modal-overview">${item.overview||'No description available.'}</p>
 
-      <div class="sec-title">Streaming On</div>
+      <div class="sec-title">Where to Watch</div>
       <div class="providers">${provHtml}</div>
 
-      <div class="sec-title">Also Available On</div>
+      <div class="sec-title">🆓 Watch Free</div>
       <div class="free-btns">
         <a href="https://tubitv.com/search/${safeTitle}" target="_blank" class="free-btn" style="background:#E5163A">📺 Tubi</a>
         <a href="https://pluto.tv/search#${safeTitle}" target="_blank" class="free-btn" style="background:#333;border:1px solid #555">🪐 Pluto TV</a>
@@ -1078,6 +1078,27 @@ async function openItem(id,type='movie'){
       </div>
 
       <div class="player-section">
+        ${isTV&&item.number_of_seasons?`
+        <div class="ep-picker">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <label style="font-size:11px;color:var(--muted);font-weight:600">Season</label>
+              <select id="seasonSel" onchange="onSeasonChange(${id},this.value)" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:6px 10px;cursor:pointer;outline:none;font-family:'DM Sans',sans-serif">
+                ${Array.from({length:item.number_of_seasons},(_,i)=>`<option value="${i+1}">Season ${i+1}</option>`).join('')}
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <label style="font-size:11px;color:var(--muted);font-weight:600">Episode</label>
+              <select id="episodeSel" onchange="onEpChange(${id})" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:6px 10px;cursor:pointer;outline:none;font-family:'DM Sans',sans-serif">
+                <option value="1">Episode 1</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:6px;margin-left:auto">
+              <button onclick="changeEp(${id},-1)" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer">◀ Prev</button>
+              <button onclick="changeEp(${id},1)" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer">Next ▶</button>
+            </div>
+          </div>
+        </div>`:''}
         <div class="player-btns">
           <button class="player-btn active" onclick="loadPlayer('${vidlinkUrl}',this)">Server 1</button>
           <button class="player-btn" onclick="loadPlayer('${vidplusUrl}',this)">Server 2</button>
@@ -1093,12 +1114,10 @@ async function openItem(id,type='movie'){
         <div class="player-wrap" id="playerWrap">
           <div class="player-thumb" onclick="autoPlay()">
             <div class="play-btn">▶</div>
-            
-            
           </div>
         </div>
         <div class="player-actions">
-          <button class="action-btn btn-download" onclick="startDownload('${id}','${type}','${title}','${imdbId}')">⬇️ Download</button>
+          <button class="action-btn btn-download" onclick="startDownload('${id}','${type}','${title}')">⬇️ Download</button>
           <button class="action-btn btn-fullscreen" onclick="goFullscreen()">⛶ Fullscreen</button>
           <button class="action-btn btn-share" onclick="shareMovie('${title}','${id}','${type}')">🔗 Share</button>
         </div>
@@ -1114,14 +1133,14 @@ async function openItem(id,type='movie'){
 
       ${cast.length?`<div class="sec-title">Cast</div><div class="cast-grid">${castHtml}</div>`:''}
 
-      <div class="sec-title">Your Rating</div>
+      <div class="sec-title">Rate & Review</div>
       <div class="review-box">
         <div class="review-stars" id="rStars">${starHtml}</div>
         <textarea class="review-input" id="rText" placeholder="Write your review... (optional)"></textarea>
         <button class="review-submit" onclick="submitReview(${id})">Submit Review</button>
       </div>
 
-      <div class="sec-title">Reviews</div>
+      <div class="sec-title">Community Reviews</div>
       <div class="reviews-list" id="rList">
         <div class="spinner" style="width:24px;height:24px;border-width:2px;margin:16px auto"></div>
       </div>
@@ -1132,259 +1151,91 @@ async function openItem(id,type='movie'){
 
 // ── PLAYER ──
 // ── IN-APP DOWNLOAD ──
+async function startDownload(id, type, title) {
+  const dlProgress = document.getElementById('dlProgress');
+  const dlStatus = document.getElementById('dlStatus');
+  const dlBar = document.getElementById('dlBar');
+  const dlPercent = document.getElementById('dlPercent');
+  const dlInfo = document.getElementById('dlInfo');
 
-// ══════════════════════════════════════
-// PROFESSIONAL DOWNLOAD ENGINE
-// Quality picker + multiple sources + background download
-// ══════════════════════════════════════
+  if(!dlProgress) return;
+  dlProgress.classList.add('show');
+  dlStatus.textContent = '⬇️ Finding download source...';
+  dlBar.style.width = '10%';
+  dlPercent.textContent = '10%';
+  dlInfo.textContent = 'Connecting to download server...';
 
-let _dlQuality='1080p';
-let _dlCurrentId=null;
-let _dlCurrentType=null;
-let _dlCurrentTitle=null;
-let _dlCurrentImdb=null;
-let _dlActive=false;
-
-// Quality → approximate size hint (based on typical movie runtimes ~2hr)
-const DL_SIZE={
-  '1080p':{'movie':'~2.5 GB','tv':'~500 MB'},
-  '720p':{'movie':'~1.2 GB','tv':'~300 MB'},
-  '480p':{'movie':'~600 MB','tv':'~150 MB'},
-  '360p':{'movie':'~300 MB','tv':'~80 MB'}
-};
-
-// Download sources per quality
-function getDlSources(id,type,imdbId,quality){
-  const q=quality||_dlQuality;
-  const qNum=q.replace('p','');
-  const safe=encodeURIComponent(_dlCurrentTitle||'movie');
-  const mid=imdbId||id;
-  return [
-    {
-      name:'Source A',
-      info:`${q} · MP4`,
-      url:type==='tv'
-        ?`https://dl.vidsrc.vip/tv/${id}/1/1`
-        :`https://dl.vidsrc.vip/movie/${id}`
-    },
-    {
-      name:'Source B',
-      info:`${q} · Fast`,
-      url:type==='tv'
-        ?`https://vidsrc.me/embed/tv/${mid}?download=1&quality=${qNum}`
-        :`https://vidsrc.me/embed/movie/${mid}?download=1&quality=${qNum}`
-    },
-    {
-      name:'Source C',
-      info:`${q} · Reliable`,
-      url:type==='tv'
-        ?`https://vidsrc.cc/v2/embed/tv/${mid}/1/1?download=1`
-        :`https://vidsrc.cc/v2/embed/movie/${mid}?download=1`
-    },
-    {
-      name:'Source D',
-      info:`${q} · Alternate`,
-      url:`https://www.1377x.to/srch?search=${safe}+${q}&order=seeders&sort=seeders&cat=0&page=1`
-    },
-    {
-      name:'YTS Mirror',
-      info:`${q} · Compressed`,
-      url:`https://yts.mx/movies/${(_dlCurrentTitle||'movie').toLowerCase().replace(/[^a-z0-9]+/g,'-')}-${new Date().getFullYear()-1}`
+  // Simulate progress while fetching
+  let progress = 10;
+  const interval = setInterval(() => {
+    if(progress < 80) {
+      progress += Math.random() * 15;
+      dlBar.style.width = Math.min(progress, 80) + '%';
+      dlPercent.textContent = Math.floor(Math.min(progress, 80)) + '%';
     }
-  ];
-}
+  }, 300);
 
-function startDownload(id,type,title,imdbId){
-  _dlCurrentId=id;
-  _dlCurrentType=type;
-  _dlCurrentTitle=title;
-  _dlCurrentImdb=imdbId||null;
-  openDlPanel();
-}
+  try {
+    // Try multiple download sources
+    const sources = [
+      `https://dl.vidsrc.vip/${type}/${id}`,
+      `https://vidsrc.me/embed/${type}/${id}?download=1`,
+    ];
 
-function openDlPanel(){
-  const panel=document.getElementById('dlPanel');
-  const fab=document.getElementById('dlFab');
-  if(!panel)return;
-  // Render sources
-  renderDlSources();
-  panel.classList.add('show');
-  if(fab)fab.classList.remove('show');
-}
+    dlInfo.textContent = `Downloading: ${title}`;
+    dlStatus.textContent = '⬇️ Starting download...';
 
-function closeDlPanel(){
-  const panel=document.getElementById('dlPanel');
-  if(panel)panel.classList.remove('show');
-}
+    clearInterval(interval);
+    dlBar.style.width = '90%';
+    dlPercent.textContent = '90%';
 
-function toggleDlPanel(){
-  const panel=document.getElementById('dlPanel');
-  if(!panel)return;
-  if(panel.classList.contains('show'))closeDlPanel();
-  else openDlPanel();
-}
+    // Create invisible anchor and trigger download
+    const a = document.createElement('a');
+    a.href = sources[0];
+    a.target = '_blank';
+    a.rel = 'noopener';
 
-function selectQuality(q,btn){
-  _dlQuality=q;
-  document.querySelectorAll('.dl-q-btn').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  renderDlSources();
-}
+    // Try to force download
+    try {
+      const response = await fetch(sources[0], {method:'HEAD'});
+      if(response.ok) {
+        a.download = `${title.replace(/[^a-zA-Z0-9 ]/g,'')}.mp4`;
+      }
+    } catch(e) {}
 
-function renderDlSources(){
-  const list=document.getElementById('dlSourceList');
-  if(!list||!_dlCurrentId)return;
-  const sources=getDlSources(_dlCurrentId,_dlCurrentType,_dlCurrentImdb,_dlQuality);
-  const sizeHint=DL_SIZE[_dlQuality]?.[_dlCurrentType]||'~varies';
-  list.innerHTML=`
-    <div style="font-size:10px;color:var(--muted);padding:0 0 8px;font-family:'DM Sans',sans-serif">
-      Estimated size: <strong style="color:var(--text)">${sizeHint}</strong> · 
-      Same quality, multiple sources
-    </div>
-    ${sources.map((s,i)=>`
-    <div class="dl-source-item">
-      <div>
-        <div class="dl-source-name">${s.name}</div>
-        <div class="dl-source-info">${s.info}</div>
-      </div>
-      <button class="dl-source-btn" id="dlBtn_${i}" onclick="triggerDl(${i})">
-        Download
-      </button>
-    </div>`).join('')}
-  `;
-}
-
-async function triggerDl(sourceIdx){
-  const sources=getDlSources(_dlCurrentId,_dlCurrentType,_dlCurrentImdb,_dlQuality);
-  const src=sources[sourceIdx];
-  if(!src)return;
-
-  const btn=document.getElementById(`dlBtn_${sourceIdx}`);
-  if(btn){btn.className='dl-source-btn dl-ing';btn.textContent='Starting...';}
-
-  // Show floating badge
-  showDlBadge(_dlCurrentTitle,src.name);
-
-  try{
-    // Use a hidden iframe for background download — doesn't leave TAVIK
-    const iframe=document.createElement('iframe');
-    iframe.style.cssText='position:fixed;top:-999px;left:-999px;width:1px;height:1px;opacity:0;pointer-events:none;border:0';
-    iframe.src=src.url;
-    document.body.appendChild(iframe);
-
-    // Animate badge progress
-    animateDlBadge(0);
-    let p=0;
-    const t=setInterval(()=>{
-      p=Math.min(p+(Math.random()*12),88);
-      animateDlBadge(p);
-      updateDlBadgeSub(`Downloading via ${src.name}...`);
-    },400);
-
-    // After 3.5s assume it triggered
-    await new Promise(r=>setTimeout(r,3500));
-    clearInterval(t);
-
-    // Also open the URL in a new tab so browser download manager catches it
-    const a=document.createElement('a');
-    a.href=src.url;
-    a.target='_blank';
-    a.rel='noopener noreferrer';
-    try{
-      a.download=`${(_dlCurrentTitle||'video').replace(/[^a-zA-Z0-9 ]/g,'_')}_${_dlQuality}.mp4`;
-    }catch(e){}
     document.body.appendChild(a);
     a.click();
-    setTimeout(()=>{document.body.removeChild(a);},1000);
+    document.body.removeChild(a);
 
-    // Mark done
-    animateDlBadge(100);
-    updateDlBadgeSub('Check your downloads folder');
-    if(btn){btn.className='dl-source-btn dl-done';btn.textContent='✓ Started';}
+    dlBar.style.width = '100%';
+    dlPercent.textContent = '100%';
+    dlStatus.textContent = '✅ Download started!';
+    dlInfo.textContent = 'Check your downloads folder. If it opened in browser, tap ⋮ → Download.';
 
-    setTimeout(()=>{
-      const ring=document.getElementById('dlBadgeRing');
-      if(ring)ring.style.display='none';
-      updateDlBadgeSub('Tap to manage downloads');
-    },3000);
+    setTimeout(() => {
+      dlProgress.classList.remove('show');
+      dlBar.style.width = '0%';
+    }, 5000);
 
-    // Cleanup iframe
-    setTimeout(()=>{if(iframe.parentNode)iframe.remove();},10000);
-
-  }catch(e){
-    if(btn){btn.className='dl-source-btn dl-fail';btn.textContent='Retry';}
-    updateDlBadgeSub('Failed — try another source');
+  } catch(e) {
+    clearInterval(interval);
+    dlStatus.textContent = '❌ Download failed';
+    dlInfo.textContent = 'Try a different source or use the browser download option.';
+    dlBar.style.background = 'var(--accent)';
   }
 }
-
-function showDlBadge(title,sourceName){
-  const fab=document.getElementById('dlFab');
-  const ring=document.getElementById('dlBadgeRing');
-  const tEl=document.getElementById('dlBadgeTitle');
-  if(fab)fab.classList.add('show');
-  if(ring)ring.style.display='block';
-  if(tEl)tEl.textContent=title||'Downloading...';
-  closeDlPanel();
-  _dlActive=true;
-}
-
-function animateDlBadge(pct){
-  const fill=document.getElementById('dlBadgeFill');
-  if(fill)fill.style.width=pct+'%';
-}
-
-function updateDlBadgeSub(text){
-  const sub=document.getElementById('dlBadgeSub');
-  if(sub)sub.textContent=text;
-}
-
 
 // ── FULLSCREEN ──
-function goFullscreen(){
-  const wrap=document.getElementById('playerWrap');
-  if(!wrap)return;
-  if(!wrap.querySelector('iframe')){showToast('Start streaming first!');return;}
-  // Try fullscreen on wrap (shows landscape properly)
-  const el=wrap;
-  const req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
-  if(req){
-    req.call(el).catch(()=>{
-      // If wrap fullscreen fails, try iframe
-      const f=wrap.querySelector('iframe');
-      const fr=f?.requestFullscreen||f?.webkitRequestFullscreen;
-      if(fr)fr.call(f).catch(()=>{});
-    });
-  } else {
-    // Fallback — make wrap cover full screen manually
-    wrap.style.cssText='position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;border-radius:0!important;padding:0!important';
-    document.body.style.overflow='hidden';
-    showToast('Tap back to exit');
-  }
+function goFullscreen() {
+  const wrap = document.getElementById('playerWrap');
+  if(!wrap) return;
+  const iframe = wrap.querySelector('iframe');
+  if(!iframe) { showToast('Start streaming first!'); return; }
+  if(iframe.requestFullscreen) iframe.requestFullscreen();
+  else if(iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+  else if(wrap.requestFullscreen) wrap.requestFullscreen();
+  showToast('⛶ Fullscreen');
 }
-// Handle fullscreen change — smooth orientation
-document.addEventListener('fullscreenchange',_onFsChange);
-document.addEventListener('webkitfullscreenchange',_onFsChange);
-function _onFsChange(){
-  const wrap=document.getElementById('playerWrap');
-  if(!wrap)return;
-  const isFs=!!(document.fullscreenElement||document.webkitFullscreenElement);
-  if(isFs){
-    wrap.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;border-radius:0;padding-bottom:0;transition:all 0.3s ease';
-  } else {
-    wrap.style.cssText='';
-  }
-}
-// Auto fullscreen on landscape rotation when playing
-window.addEventListener('orientationchange',()=>{
-  setTimeout(()=>{
-    const wrap=document.getElementById('playerWrap');
-    if(!wrap?.querySelector('iframe'))return;
-    const isLandscape=window.innerWidth>window.innerHeight;
-    if(isLandscape&&!document.fullscreenElement&&!document.webkitFullscreenElement){
-      goFullscreen();
-    }
-  },300);
-});
 
 // ── SHARE ──
 function shareMovie(title, id, type) {
@@ -1412,180 +1263,147 @@ function copyToClipboard(text) {
     });
 }
 (function(){
-  const BAD=['brightadnetwork','ghtadnetwork','doubleclick','googlesyndication',
-    'adnxs','outbrain','taboola','mgid','popads','popcash','adsterra','propellerads',
-    'exoclick','juicyads','trafficjunky','revcontent','bidvertiser','hilltopads',
-    'pop.zeropark','richpush','push.express','moonads','adcash','jump/next',
-    'casino','betting','adult','porn','xxx','viagra'];
-  const isBad=u=>{if(!u)return false;const l=u.toLowerCase();return BAD.some(b=>l.includes(b));};
+  // 1. Block popup windows from ads
+  const _origOpen=window.open;
+  window.open=function(url,...a){
+    if(!url)return null;
+    const bad=['pop','casino','bet','adult','xxx','porn','prize','lottery','viagra','pills'];
+    if(bad.some(b=>url.toLowerCase().includes(b)))return null;
+    return _origOpen.call(window,url,...a);
+  };
 
-  // Block window.open
-  const _orig=window.open;
-  window.open=function(url,...a){if(!url||isBad(url))return null;return _orig.call(window,url,...a);};
-
-  // Block ALL link clicks to bad domains
-  document.addEventListener('click',e=>{
-    const a=e.target.closest('a');
-    if(a&&isBad(a.href)){e.preventDefault();e.stopPropagation();return false;}
-  },true);
-
-  // Block injected iframes/scripts
-  new MutationObserver(ms=>{ms.forEach(m=>{m.addedNodes.forEach(n=>{
-    if(n.nodeType!==1)return;
-    const s=n.src||n.href||n.getAttribute?.('src')||n.getAttribute?.('href')||'';
-    if(isBad(s)){n.remove();return;}
-    n.querySelectorAll?.('iframe,script,a').forEach(el=>{
-      if(isBad(el.src||el.href||''))el.remove();
+  // 2. Watch for ad iframes being injected and remove them
+  const observer=new MutationObserver(mutations=>{
+    mutations.forEach(m=>{
+      m.addedNodes.forEach(node=>{
+        if(node.nodeType!==1)return;
+        const src=node.src||node.getAttribute?.('src')||'';
+        const bad=['doubleclick','googlesyndication','adnxs','outbrain','taboola','mgid','popads','popcash','adsterra','propellerads'];
+        if((node.tagName==='IFRAME'||node.tagName==='SCRIPT')&&bad.some(b=>src.includes(b))){
+          node.remove();
+        }
+      });
     });
-  });});}).observe(document.documentElement,{childList:true,subtree:true});
-
-  // Block navigation redirects from iframes
-  window.addEventListener('message',e=>{
-    const d=typeof e.data==='string'?e.data:'';
-    if(isBad(d))return;
   });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
 
-  // Prevent page from being navigated away
-  const _push=history.pushState.bind(history);
-  const _replace=history.replaceState.bind(history);
-  history.pushState=function(s,t,u){if(u&&isBad(String(u)))return;return _push(s,t,u);};
-  history.replaceState=function(s,t,u){if(u&&isBad(String(u)))return;return _replace(s,t,u);};
+  console.log('🛡️ TAVIK Ad Blocker Active');
 })();
 
-function blockPopups(){if(window._popupBlocked)return;window._popupBlocked=true;}
+function blockPopups(){
+  // Already handled above — this is just for compatibility
+  if(window._popupBlocked)return;
+  window._popupBlocked=true;
+}
 
-// ══════════════════════════════════════
-// SMART PLAYER — Races all sources simultaneously
-// First one that loads wins — no slow sequential waiting
-// ══════════════════════════════════════
-const IFRAME_ALLOW='autoplay; fullscreen; picture-in-picture; encrypted-media; screen-wake-lock; clipboard-write';
-
+// ── AUTO FALLBACK PLAYER ──
+// Tries each source in order — if iframe loads blank/error, skips to next automatically
 function autoPlay(){
   blockPopups();
-  window._smartCancelled=false;
-  smartRace();
+  window._playerIndex=0;
+  tryNextPlayer();
 }
 
-async function smartRace(){
-  const queue=getSmartQueue(window._playerQueue||[]);
-  if(!queue.length)return;
-  const wrap=document.getElementById('playerWrap');
-  if(!wrap)return;
-
-  // Clean loading UI — no source names leaked
-  wrap.innerHTML=`
-    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:linear-gradient(135deg,#060810,#120508)">
-      <div style="position:relative;width:52px;height:52px">
-        <div style="position:absolute;inset:0;border-radius:50%;border:3px solid rgba(229,9,20,0.15);border-top-color:#e50914;animation:spin 0.7s linear infinite"></div>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px">▶</div>
-      </div>
-      <p style="color:rgba(255,255,255,0.45);font-size:12px;font-family:'DM Sans',sans-serif;letter-spacing:0.5px">Loading stream...</p>
-      <div style="width:140px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden">
-        <div id="_rBar" style="height:100%;width:0%;background:linear-gradient(90deg,#e50914,#ff6b35);border-radius:2px;transition:width 7s linear"></div>
-      </div>
-    </div>`;
-  requestAnimationFrame(()=>{const b=document.getElementById('_rBar');if(b)b.style.width='88%';});
-
-  window._smartCancelled=false;
-  let won=false;
-  const frames=[];
-
-  // Launch all sources simultaneously off-screen
-  const promises=queue.map((src,i)=>new Promise(resolve=>{
-    const f=document.createElement('iframe');
-    f.src=src.url;
-    f.style.cssText='position:fixed;top:-9999px;left:-9999px;width:300px;height:200px;opacity:0;pointer-events:none;border:0';
-    f.setAttribute('allow',IFRAME_ALLOW);
-    f.setAttribute('allowfullscreen','true');
-    frames.push(f);
-    document.body.appendChild(f);
-    const t=setTimeout(()=>resolve({ok:false,src,f}),7000);
-    f.onload=()=>{clearTimeout(t);resolve({ok:true,src,f});};
-    f.onerror=()=>{clearTimeout(t);resolve({ok:false,src,f});};
-  }));
-
-  // First ok one wins
-  await Promise.race(promises.map(p=>p.then(r=>{
-    if(r.ok&&!won&&!window._smartCancelled&&wrap===document.getElementById('playerWrap')){
-      won=true;
-      _playWinner(r.src.url,r.src.label,wrap);
-    }
-  })));
-
-  // Cleanup off-screen frames after 4s
-  setTimeout(()=>frames.forEach(f=>{if(f.parentNode&&!f.closest('#playerWrap'))f.remove();}),4000);
-
-  // If race failed entirely, try sequentially
-  if(!won&&!window._smartCancelled){
-    window._playerIndex=0;
-    _trySeq();
-  }
-}
-
-function _playWinner(url,label,wrap){
-  if(!wrap||window._smartCancelled)return;
-  document.querySelectorAll('.player-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()===label));
-  wrap.innerHTML='';
-  const f=document.createElement('iframe');
-  f.src=url;
-  f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0';
-  f.setAttribute('allow',IFRAME_ALLOW);
-  f.setAttribute('allowfullscreen','true');
-  wrap.appendChild(f);
-  // Enable sound via user gesture simulation
-  const g=document.createElement('div');
-  g.style.cssText='position:absolute;inset:0;z-index:2;cursor:pointer;background:transparent';
-  g.onclick=()=>g.remove();
-  setTimeout(()=>{if(g.parentNode)g.click();},600);
-  wrap.appendChild(g);
-  window._currentPlayerUrl=url;
-  rememberServer(label);
-  // Track continue watching
-  if(window._currentMovie){const m=window._currentMovie;trackWatching(m.id,m.type,m.title,m.poster,m.year);}
-}
-
-// Sequential fallback
-function _trySeq(){
+function tryNextPlayer(){
   const queue=window._playerQueue||[];
   const idx=window._playerIndex||0;
   if(idx>=queue.length){
-    const w=document.getElementById('playerWrap');
-    if(w)w.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:linear-gradient(135deg,#060810,#120508);text-align:center;padding:24px"><div style="font-size:40px">📡</div><p style="color:rgba(255,255,255,0.8);font-size:15px;font-weight:700;font-family:'Bebas Neue',sans-serif;letter-spacing:2px">UNAVAILABLE</p><p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6">This title is not available right now</p><button onclick="autoPlay()" style="padding:10px 22px;background:#e50914;border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Try Again</button></div>`;
+    const wrap=document.getElementById('playerWrap');
+    if(wrap)wrap.innerHTML=`
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:var(--surface);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:40px">😔</div>
+        <p style="color:var(--text);font-size:14px;font-weight:600">No stream found</p>
+        <p style="color:var(--muted);font-size:12px">Try the Watch Free links above or check back later</p>
+      </div>`;
+    showToast('No working stream found 😔');
     return;
   }
-  const{url,label}=queue[idx];
+
+  const {url,label}=queue[idx];
   const wrap=document.getElementById('playerWrap');
   if(!wrap)return;
-  document.querySelectorAll('.player-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()===label));
-  wrap.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#060810,#120508)"><div style="width:36px;height:36px;border:3px solid rgba(229,9,20,0.2);border-top-color:#e50914;border-radius:50%;animation:spin 0.7s linear infinite"></div></div>`;
-  const f=document.createElement('iframe');
-  f.src=url;f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0;opacity:0';
-  f.setAttribute('allow',IFRAME_ALLOW);f.setAttribute('allowfullscreen','true');
-  let d=false;
-  const t=setTimeout(()=>{if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}},5000);
-  f.onload=()=>{clearTimeout(t);if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}};
-  f.onerror=()=>{clearTimeout(t);if(!d){d=true;skipPlayer();}};
-  wrap.appendChild(f);
-}
-function tryNextPlayer(){_trySeq();}
-function skipPlayer(){window._playerIndex=(window._playerIndex||0)+1;_trySeq();}
 
+  // Update active button
+  document.querySelectorAll('.player-btn').forEach((b,i)=>{
+    b.classList.toggle('active', b.textContent.trim()===label);
+  });
+
+  // Show loading with source name + skip button
+  wrap.innerHTML=`
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:var(--surface);border-radius:12px">
+      <div class="spinner" style="margin:0"></div>
+      <p style="color:var(--muted);font-size:12px;font-family:'Space Mono',monospace">${label}</p>
+      <button onclick="skipPlayer()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">Skip →</button>
+    </div>`;
+
+  // Load iframe in hidden div first to detect blank load
+  const testFrame=document.createElement('iframe');
+  testFrame.src=url;
+  testFrame.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0;opacity:0';
+  testFrame.allowFullscreen=true;
+  testFrame.setAttribute('allow','autoplay;fullscreen;encrypted-media;picture-in-picture');
+
+  let loaded=false;
+  // After 6 seconds show the frame regardless — assume it worked
+  const showTimer=setTimeout(()=>{
+    if(!loaded&&wrap&&document.getElementById('playerWrap')===wrap){
+      loaded=true;
+      testFrame.style.opacity='1';
+      wrap.innerHTML='';
+      wrap.appendChild(testFrame);
+      showToast(`▶ ${label} loaded!`);
+    }
+  },6000);
+
+  testFrame.onload=()=>{
+    clearTimeout(showTimer);
+    if(!loaded&&wrap&&document.getElementById('playerWrap')===wrap){
+      loaded=true;
+      testFrame.style.opacity='1';
+      wrap.innerHTML='';
+      wrap.appendChild(testFrame);
+      showToast(`▶ ${label} loaded!`);
+    }
+  };
+
+  testFrame.onerror=()=>{
+    clearTimeout(showTimer);
+    if(!loaded){
+      loaded=true;
+      skipPlayer();
+    }
+  };
+
+  // Append hidden frame to start loading
+  wrap.appendChild(testFrame);
+  showToast(`Trying ${label}...`);
+}
+
+function skipPlayer(){
+  window._playerIndex=(window._playerIndex||0)+1;
+  tryNextPlayer();
+}
+
+// Manual player switch (when user clicks a specific button)
 function loadPlayer(url,btn){
   blockPopups();
-  window._smartCancelled=true;
   document.querySelectorAll('.player-btn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const wrap=document.getElementById('playerWrap');if(!wrap)return;
-  wrap.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000"><div style="width:36px;height:36px;border:3px solid rgba(229,9,20,0.2);border-top-color:#e50914;border-radius:50%;animation:spin 0.7s linear infinite"></div></div>`;
-  const f=document.createElement('iframe');
-  f.src=url;f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0;opacity:0';
-  f.setAttribute('allow',IFRAME_ALLOW);f.setAttribute('allowfullscreen','true');
-  let d=false;
-  const t=setTimeout(()=>{if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}},3500);
-  f.onload=()=>{clearTimeout(t);if(!d&&wrap===document.getElementById('playerWrap')){d=true;f.style.opacity='1';wrap.innerHTML='';wrap.appendChild(f);}};
-  wrap.appendChild(f);
-  window._currentPlayerUrl=url;
+  const label=btn?btn.textContent.trim():'';
+
+  // Update fallback queue to start from this source
+  const queue=window._playerQueue||[];
+  const idx=queue.findIndex(p=>p.url===url);
+  if(idx>=0)window._playerIndex=idx;
+
+  wrap.innerHTML=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:var(--surface);border-radius:12px"><div class="spinner" style="margin:0"></div><p style="color:var(--muted);font-size:11px;font-family:'Space Mono',monospace">${label}</p></div>`;
+  setTimeout(()=>{
+    if(wrap)wrap.innerHTML=`<iframe src="${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen allow="autoplay;fullscreen;encrypted-media;picture-in-picture"></iframe>`;
+    showToast(`▶ ${label} loaded!`);
+  },400);
 }
+
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow='';
@@ -1612,7 +1430,7 @@ function submitReview(id){
   const review={stars:starSelected,text:text||'No written review.',date:new Date().toLocaleDateString()};
   if(window._fbReady){
     try{window._fbPush(window._fbRef(window._fbDb,`tavik_reviews/${id}`),review);}
-    catch(e){}
+    catch(e){console.log('Firebase error:',e);}
   }
   if(textEl)textEl.value='';
   showToast('Review saved! 🔥');
@@ -1649,85 +1467,22 @@ function loadFbReviews(id){
 // ── SEARCH ──
 function handleSearch(val){
   clearTimeout(searchTimeout);
-  const ss=document.getElementById('searchSection');
-  const grid=document.getElementById('searchGrid');
+  var ss=document.getElementById('searchSection');
+  var grid=document.getElementById('searchGrid');
   if(!val||!val.trim()){
-    // Restore home
     if(ss){ss.classList.remove('active');ss.style.display='none';}
-    document.getElementById('heroSection').style.display='flex';
-    ['trendingSection','popularSection','tvSection','netflixSection'].forEach(id=>{
-      const e=document.getElementById(id);if(e)e.style.display='block';
-    });
+    var hero=document.getElementById('heroSection');
+    if(hero)hero.style.display='flex';
+    ['trendingSection','popularSection','tvSection','netflixSection','footerEl'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='block';});
     return;
   }
-  // Hide home, show search
-  document.getElementById('heroSection').style.display='none';
-  ['trendingSection','popularSection','tvSection','netflixSection'].forEach(id=>{
-    const e=document.getElementById(id);if(e)e.style.display='none';
-  });
+  var hero=document.getElementById('heroSection');
+  if(hero)hero.style.display='none';
+  ['trendingSection','popularSection','tvSection','netflixSection'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
   if(ss){ss.classList.add('active');ss.style.display='block';}
-  // Show instant skeleton while typing
-  if(grid&&val.length>=2){
-    grid.innerHTML='<div class="skeleton"></div>'.repeat(6);
-  }
-  // Debounce — wait for user to stop typing (300ms)
-  const delay=val.length<=2?600:300;
-  searchTimeout=setTimeout(()=>smartSearch(val),delay);
-}
-
-// ── SMART SEARCH — searches everything simultaneously ──
-async function smartSearch(q){
-  if(!q||!q.trim())return;
-  const grid=document.getElementById('searchGrid');
-  if(!grid)return;
-  grid.innerHTML='<div class="spinner" style="margin:40px auto"></div>';
-
-  // Search movies + TV + anime all at once
-  const enc=encodeURIComponent(q);
-  const [movies,tvShows,animeData]=await Promise.all([
-    api(`/search/movie?query=${enc}&page=1`).catch(()=>({results:[]})),
-    api(`/search/tv?query=${enc}&page=1`).catch(()=>({results:[]})),
-    queryAniList(
-      `query($s:String){Page(page:1,perPage:4){media(type:ANIME,search:$s,sort:POPULARITY_DESC){id title{romaji english}coverImage{large}averageScore episodes status}}}`,
-      {s:q}
-    ).catch(()=>null),
-  ]);
-
-  const movieResults=(movies.results||[]).slice(0,8);
-  const tvResults=(tvShows.results||[]).slice(0,6);
-  const animeResults=(animeData?.Page?.media||[]).slice(0,4);
-  const total=movieResults.length+tvResults.length+animeResults.length;
-
-  if(!total){
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
-      <div style="font-size:44px;margin-bottom:12px">🔍</div>
-      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--text);margin-bottom:8px">No Results</h3>
-      <p style="font-size:13px">Try a different title or check spelling</p>
-    </div>`;
-    return;
-  }
-
-  let html='';
-
-  // Movies section
-  if(movieResults.length){
-    html+=`<div style="grid-column:1/-1;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:8px 0 4px">Movies</div>`;
-    html+=movieResults.map((m,i)=>card(m,false,false,i)).join('');
-  }
-
-  // TV section
-  if(tvResults.length){
-    html+=`<div style="grid-column:1/-1;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:16px 0 4px">TV Shows</div>`;
-    html+=tvResults.map((m,i)=>card(m,false,true,i)).join('');
-  }
-
-  // Anime section
-  if(animeResults.length){
-    html+=`<div style="grid-column:1/-1;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin:16px 0 4px">Anime</div>`;
-    html+=animeResults.map((a,i)=>animeCard(a,i)).join('');
-  }
-
-  grid.innerHTML=html;
+  if(grid)grid.innerHTML='<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  var delay=val.length<=2?500:250;
+  searchTimeout=setTimeout(function(){fetchSearch(val.trim());},delay);
 }
 
 function setSearchType(type){
@@ -1743,7 +1498,7 @@ function showTab(tab,btn){
   document.querySelectorAll('.nav-tab,.mobile-tab').forEach(t=>t.classList.remove('active'));
   if(btn)btn.classList.add('active');
 
-  const allSections=['heroSection','trendingSection','top10Section','continueSection','popularSection','tvSection','netflixSection','animeSection','naijaSection','musicSection','footerEl'];
+  const allSections=['heroSection','trendingSection','top10Section','continueSection','popularSection','tvSection','netflixSection','animeSection','toonsSection','naijaSection','musicSection','footerEl'];
   allSections.forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('privacyPage').classList.remove('show');
   document.getElementById('watchlistPage').classList.remove('show');
@@ -1762,6 +1517,7 @@ function showTab(tab,btn){
   else if(tab==='netflix')show('netflixSection','footerEl');
   else if(tab==='trending')show('trendingSection','footerEl');
   else if(tab==='naija'){show('naijaSection','footerEl');fetchNollywood();}
+  else if(tab==='toons'){show('toonsSection','footerEl');loadToons('all',document.querySelector('#toonsFilters .anime-filter-btn'));}
   else if(tab==='music'){show('musicSection','footerEl');loadMusicPlaylist('afrobeats',document.querySelector('.anime-filter-btn'));}
   else if(tab==='anime'){show('animeSection','footerEl');loadAnime('trending',document.querySelector('.anime-filter-btn'));}
   else if(tab==='privacy'){document.getElementById('privacyPage').classList.add('show');show('footerEl');}
@@ -1775,10 +1531,6 @@ function showTab(tab,btn){
     document.getElementById('profilePage').classList.add('show');
     show('footerEl');
     renderProfile();
-    // If not signed in, open auth after short delay
-    if(!window._user){
-      setTimeout(()=>openAuth(),300);
-    }
   }
 
   if(tab!=='home')window.scrollTo({top:0,behavior:'smooth'});
@@ -1854,99 +1606,67 @@ async function omdbGet(imdbId){
 }
 
 // ── COMBINED SEARCH — TMDB + OMDb + AniList always ──
+var _searchCache={};
 async function fetchSearch(q){
-  if(!q.trim()){
+  if(!q||!q.trim())return;
+  if(_searchCache[q]){var g0=document.getElementById('searchGrid');if(g0)g0.innerHTML=_searchCache[q];return;}
+  var ss=document.getElementById('searchSection');
+  var grid=document.getElementById('searchGrid');
+  if(ss){ss.classList.add('active');ss.style.display='block';}
+  if(grid)grid.innerHTML='<div class="spinner" style="margin:40px auto"></div>';
 
-    return;
-  }
-  const ss=document.getElementById('searchSection');
-  ss.classList.add('active');ss.style.display='block';
-  document.getElementById('searchGrid').innerHTML='<div class="spinner"></div>';
-  setTimeout(()=>ss.scrollIntoView({behavior:'smooth',block:'start'}),100);
-
-  
-  // Run all 3 searches in parallel
-  const [tmdbData, omdbData, anilistData] = await Promise.all([
-    api(`/search/${searchType}?query=${encodeURIComponent(q)}&page=1`).catch(()=>({results:[]})),
-    omdbSearch(q).catch(()=>[]),
-    searchType!=='tv' ? queryAniList(
-      `query($s:String){Page(page:1,perPage:6){media(type:ANIME,search:$s,sort:POPULARITY_DESC){id title{romaji english}coverImage{large}averageScore episodes status genres}}}`,
-      {s:q}
-    ).catch(()=>null) : null
+  var enc=encodeURIComponent(q);
+  var res=await Promise.all([
+    api('/search/movie?query='+enc+'&page=1').catch(function(){return{results:[]};} ),
+    api('/search/tv?query='+enc+'&page=1').catch(function(){return{results:[]};} ),
+    queryAniList('query($s:String){Page(page:1,perPage:4){media(type:ANIME,search:$s,sort:POPULARITY_DESC){id title{romaji english}coverImage{large}averageScore episodes status}}}',{s:q}).catch(function(){return null;})
   ]);
 
-  // TMDB results
-  const tmdbResults = (tmdbData.results||[]).slice(0,20);
+  var movies=(res[0].results||[]).sort(function(a,b){return(b.popularity||0)-(a.popularity||0);}).slice(0,8);
+  var shows=(res[1].results||[]).sort(function(a,b){return(b.popularity||0)-(a.popularity||0);}).slice(0,6);
+  var anime=((res[2]&&res[2].Page&&res[2].Page.media)||[]).slice(0,4);
 
-  // OMDb results — convert to card format, remove duplicates
-  const tmdbTitles = tmdbResults.map(r=>(r.title||r.name||'').toLowerCase());
-  const omdbResults = (omdbData||[])
-    .filter(m=>!tmdbTitles.includes(m.Title.toLowerCase()))
-    .slice(0,10)
-    .map(m=>({
-      id:m.imdbID, title:m.Title,
-      release_date:m.Year+'-01-01',
-      poster_path:null, vote_average:0,
-      _omdb:true,
-      // Use OMDb poster directly — it works when URL is valid
-      _poster:(m.Poster&&m.Poster!=='N/A'&&!m.Poster.includes('N/A'))?m.Poster:null,
-      _imdbId:m.imdbID
-    }));
-
-  // AniList results — only show if searching movies (not TV)
-  const animeResults = (anilistData?.Page?.media||[]).slice(0,6);
-
-  const totalResults = tmdbResults.length + omdbResults.length + animeResults.length;
-
-  if(!totalResults){
-    document.getElementById('searchGrid').innerHTML=`
-      <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
-        <div style="font-size:44px;margin-bottom:14px">🔍</div>
-        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);margin-bottom:8px">No Results</h3>
-        <p>Try a different title</p>
-      </div>`;
+  if(!movies.length&&!shows.length&&!anime.length){
+    if(grid)grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px"><div style="font-size:44px;margin-bottom:12px">🔍</div><h3 style="font-family:Bebas Neue,sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:8px">No results for &ldquo;'+q+'&rdquo;</h3><p style="color:var(--muted);font-size:13px">Check spelling or try another title</p></div>';
     return;
   }
 
-
-  // Build section headers + cards
-  const g=document.getElementById('searchGrid');
-  let html='';
-
-  // TMDB results
-  if(tmdbResults.length){
-
-    html+=tmdbResults.map((m,i)=>card(m,false,searchType==='tv',i)).join('');
+  var out='';
+  var top=movies[0]||shows[0];
+  if(top&&top.backdrop_path){
+    var ttype=top.title?'movie':'tv';
+    var ttitle=(top.title||top.name||'').replace(/</g,'&lt;');
+    var tyear=(top.release_date||top.first_air_date||'').slice(0,4);
+    var trating=top.vote_average?top.vote_average.toFixed(1):'—';
+    var topEl=document.createElement('div');
+    topEl.style.cssText='grid-column:1/-1;margin-bottom:12px';
+    topEl.innerHTML='<div style="position:relative;border-radius:14px;overflow:hidden;cursor:pointer;height:160px">'
+      +'<img src="https://image.tmdb.org/t/p/w780'+top.backdrop_path+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">'
+      +'<div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(8,11,15,.92) 0%,rgba(8,11,15,.45) 55%,transparent 100%)"></div>'
+      +'<div style="position:absolute;top:0;left:0;bottom:0;padding:16px 20px;display:flex;flex-direction:column;justify-content:center;max-width:65%">'
+      +'<div style="font-size:9px;color:#e50914;font-weight:700;letter-spacing:2px;margin-bottom:5px">TOP RESULT</div>'
+      +'<div style="font-family:Bebas Neue,sans-serif;font-size:22px;line-height:1.1;color:#fff;margin-bottom:5px">'+ttitle+'</div>'
+      +'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+tyear+(trating!=='—'?' · ⭐'+trating:'')+'</div>'
+      +'</div></div>';
+    topEl.querySelector('div').onclick=function(){openItem(top.id,ttype);};
+    var g2=document.getElementById('searchGrid');
+    if(g2)g2.appendChild(topEl);
   }
-
-  // OMDb results
-  if(omdbResults.length){
-
-    html+=omdbResults.map((m,i)=>{
-      // Use OMDb image API as fallback for missing posters
-      const posterSrc=m._poster||`https://img.omdbapi.com/?i=${m._imdbId}&h=600&apikey=trilogy`;
-      const poster=`<img class="movie-poster" src="${posterSrc}" alt="${m.title}" loading="lazy"
-        onerror="if(this.src.includes('omdbapi.com')){this.outerHTML='<div class=no-poster>🎬</div>'}else{this.src='https://img.omdbapi.com/?i=${m._imdbId}&h=600&apikey=trilogy';}">`;
-      return `<div class="movie-card" style="animation-delay:${i*0.04}s" onclick="openOmdbItem('${m._imdbId}','${m.title.replace(/'/g,"\\'")}')">
-        <div style="position:absolute;top:8px;right:8px;background:#f5c518;color:#000;font-size:8px;font-family:'Space Mono',monospace;padding:2px 6px;border-radius:4px;font-weight:700">IMDb</div>
-        ${poster}
-        <div class="movie-info">
-          <div class="movie-title">${m.title}</div>
-          <div class="movie-meta"><span class="movie-year">${m.release_date?.slice(0,4)||'—'}</span><span class="movie-rating" style="color:#f5c518">IMDb</span></div>
-          
-        </div>
-      </div>`;
-    }).join('');
+  if(movies.length){
+    out+='<div style="grid-column:1/-1;font-family:Bebas Neue,sans-serif;font-size:12px;letter-spacing:2px;color:var(--muted);margin:4px 0 2px">Movies</div>';
+    out+=movies.map(function(m,i){return card(m,false,false,i);}).join('');
   }
-
-  // AniList anime results
-  if(animeResults.length){
-
-    html+=animeResults.map((a,i)=>animeCard(a,i)).join('');
+  if(shows.length){
+    out+='<div style="grid-column:1/-1;font-family:Bebas Neue,sans-serif;font-size:12px;letter-spacing:2px;color:var(--muted);margin:14px 0 2px">TV Shows</div>';
+    out+=shows.map(function(m,i){return card(m,false,true,i);}).join('');
   }
-
-  g.innerHTML=html;
+  if(anime.length){
+    out+='<div style="grid-column:1/-1;font-family:Bebas Neue,sans-serif;font-size:12px;letter-spacing:2px;color:var(--muted);margin:14px 0 2px">Anime</div>';
+    out+=anime.map(function(a,i){return animeCard(a,i);}).join('');
+  }
+  if(grid)grid.innerHTML=out;
 }
+
 
 async function openOmdbItem(imdbId,titleFallback){
   document.getElementById('modalOverlay').classList.add('open');
@@ -1964,7 +1684,7 @@ async function openOmdbItem(imdbId,titleFallback){
   const vidsrcUrl=isTV?`https://vidsrc.me/embed/tv/${imdbId}`:`https://vidsrc.me/embed/movie/${imdbId}`;
   const vidlinkUrl=isTV?`https://vidlink.pro/tv/${imdbId}/1/1?autoplay=false`:`https://vidlink.pro/movie/${imdbId}?autoplay=false`;
   const embedSuUrl=isTV?`https://embed.su/embed/tv/${imdbId}/1/1`:`https://embed.su/embed/movie/${imdbId}`;
-  window._playerQueue=[{url:vidplusUrl,label:'🎬 VidPlus'},{url:vidlinkUrl,label:'🔗 VidLink'},{url:vidsrcUrl,label:'▶ VidSrc'},{url:embedSuUrl,label:'🔁 Embed.su'}];
+  window._playerQueue=[{url:vidplusUrl,label:'Server 1'},{url:vidlinkUrl,label:'Server 2'},{url:vidsrcUrl,label:'Server 3'},{url:embedSuUrl,label:'Server 4'}];
   window._playerIndex=0;
   const starHtml=[1,2,3,4,5].map(s=>`<span class="r-star ${starSelected>=s?'on':''}" onclick="setStar('${imdbId}',${s})">${starSelected>=s?'★':'☆'}</span>`).join('');
   document.getElementById('modalContent').innerHTML=`
@@ -1979,27 +1699,27 @@ async function openOmdbItem(imdbId,titleFallback){
       <p class="modal-overview">${omdb.Plot||'No description.'}</p>
       ${omdb.Director&&omdb.Director!=='N/A'?`<p style="font-size:13px;color:var(--muted);margin-bottom:12px">🎬 <span style="color:var(--text)">${omdb.Director}</span></p>`:''}
       ${omdb.Actors&&omdb.Actors!=='N/A'?`<p style="font-size:13px;color:var(--muted);margin-bottom:20px">🎭 <span style="color:var(--text)">${omdb.Actors}</span></p>`:''}
-      <div class="sec-title">Also Available On</div>
+      <div class="sec-title">🆓 Watch Free</div>
       <div class="free-btns" style="margin-bottom:4px">
         <a href="https://tubitv.com/search/${safeTitle}" target="_blank" class="free-btn" style="background:#E5163A">📺 Tubi</a>
         <a href="https://pluto.tv/search#${safeTitle}" target="_blank" class="free-btn" style="background:#333;border:1px solid #555">🪐 Pluto</a>
         <a href="https://www.plex.tv/search/?q=${safeTitle}" target="_blank" class="free-btn" style="background:#E5A00D;color:#000">▶ Plex</a>
         <a href="https://aniwave.to/filter?keyword=${safeTitle}" target="_blank" class="free-btn" style="background:#1a6b9a">🌊 Aniwave</a>
       </div>
-      <div class="sec-title">▶ Watch</div>
+      <div class="sec-title">▶ Stream It</div>
       <div class="player-btns">
-        <button class="player-btn active" onclick="loadPlayer('${vidplusUrl}',this)">🎬 VidPlus</button>
-        <button class="player-btn" onclick="loadPlayer('${vidlinkUrl}',this)">🔗 VidLink</button>
-        <button class="player-btn" onclick="loadPlayer('${vidsrcUrl}',this)">▶ VidSrc</button>
-        <button class="player-btn" onclick="loadPlayer('${embedSuUrl}',this)">🔁 Embed.su</button>
+        <button class="player-btn active" onclick="loadPlayer('${vidplusUrl}',this)">Server 1</button>
+        <button class="player-btn" onclick="loadPlayer('${vidlinkUrl}',this)">Server 2</button>
+        <button class="player-btn" onclick="loadPlayer('${vidsrcUrl}',this)">Server 3</button>
+        <button class="player-btn" onclick="loadPlayer('${embedSuUrl}',this)">Server 5</button>
         <a href="https://www.imdb.com/title/${imdbId}" target="_blank" class="player-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">📋 IMDb</a>
       </div>
       <div class="player-wrap" id="playerWrap">
-        <div class="player-thumb" onclick="autoPlay()"><div class="play-btn">▶</div></div>
+        <div class="player-thumb" onclick="autoPlay()"><div class="play-btn">▶</div><p style="font-size:10px;color:var(--border);margin-top:4px">Auto-tries all sources</p></div>
       </div>
-      <div class="sec-title">Your Rating</div>
+      <div class="sec-title">Rate & Review</div>
       <div class="review-box"><div class="review-stars" id="rStars">${starHtml}</div><textarea class="review-input" id="rText" placeholder="Write your review..."></textarea><button class="review-submit" onclick="submitReview('${imdbId}')">Submit Review</button></div>
-      <div class="sec-title">Reviews</div>
+      <div class="sec-title">Community Reviews</div>
       <div class="reviews-list" id="rList"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin:16px auto"></div></div>
     </div>`;
   loadFbReviews(imdbId);
@@ -2047,7 +1767,7 @@ function animeCard(a,delay=0){
   const score=a.averageScore?(a.averageScore/10).toFixed(1):'—';
   const eps=a.episodes?`${a.episodes} eps`:a.status==='RELEASING'?'Airing':'?';
   const isAiring=a.status==='RELEASING';
-  const poster=a.coverImage?.large?`<img class="movie-poster" src="${a.coverImage.large}" alt="${title}" loading="lazy" onerror="this.src='https://cdn.myanimelist.net/img/sp/icon/apple-touch-icon-256.png';this.onerror=null">`:`<div class="no-poster"><span style="font-size:28px;opacity:0.18">🎌</span><span class="no-poster-title">${title}</span></div>`;
+  const poster=a.coverImage?.large?`<img class="movie-poster" src="${a.coverImage.large}" alt="${title}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>🎌</div>'">`:`<div class="no-poster">🎌</div>`;
   return `<div class="movie-card" style="animation-delay:${delay*0.04}s" onclick="openAnime(${a.id},'${title.replace(/'/g,"\\'")}')">
     <div class="anime-badge">ANIME</div>
     ${isAiring?'<div style="position:absolute;top:8px;right:8px;background:rgba(33,208,122,0.2);color:#21d07a;border:1px solid rgba(33,208,122,0.3);font-size:8px;font-family:\'Space Mono\',monospace;padding:2px 6px;border-radius:4px">LIVE</div>':''}
@@ -2115,7 +1835,7 @@ async function openAnime(anilistId,titleFallback){
       ${studios?`<p style="font-size:12px;color:var(--muted);margin-bottom:16px">🏢 <span style="color:var(--text)">${studios}</span></p>`:''}
       <p class="modal-overview">${desc.slice(0,400)}${desc.length>400?'...':''}</p>
 
-      <div class="sec-title">Also Available On</div>
+      <div class="sec-title">🆓 Watch Free</div>
       <div class="free-btns" style="margin-bottom:4px">
         <a href="https://aniwave.to/filter?keyword=${safeTitle}" target="_blank" class="free-btn" style="background:#1a6b9a">🌊 Aniwave</a>
         <a href="https://animeheaven.me/search.php?q=${safeTitle}" target="_blank" class="free-btn" style="background:#6b3fa0">⛩️ AnimeHeaven</a>
@@ -2123,7 +1843,7 @@ async function openAnime(anilistId,titleFallback){
         <a href="https://hianime.to/search?keyword=${safeTitle}" target="_blank" class="free-btn" style="background:#9b59b6">🌸 HiAnime</a>
       </div>
 
-      <div class="sec-title">▶ Watch</div>
+      <div class="sec-title">▶ Stream It</div>
 
       <!-- Episode + Sub/Dub Controls -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
@@ -2144,10 +1864,10 @@ async function openAnime(anilistId,titleFallback){
       <div class="player-btns" id="animePBtns">
         <button class="player-btn active" onclick="setAnimeSource('hianime',this)">🌸 HiAnime</button>
         <button class="player-btn" onclick="setAnimeSource('autoembed',this)">🆕 AutoEmbed</button>
-        <button class="player-btn" onclick="setAnimeSource('vidplus',this)">🎌 VidPlus</button>
-        <button class="player-btn" onclick="setAnimeSource('vidsrc',this)">▶ VidSrc</button>
-        <button class="player-btn" onclick="setAnimeSource('vidlink',this)">🔗 VidLink</button>
-        <button class="player-btn" onclick="setAnimeSource('embedsu',this)">🔁 Embed.su</button>
+        <button class="player-btn" onclick="setAnimeSource('vidplus',this)">Server 3</button>
+        <button class="player-btn" onclick="setAnimeSource('vidsrc',this)">Server 3</button>
+        <button class="player-btn" onclick="setAnimeSource('vidlink',this)">Server 2</button>
+        <button class="player-btn" onclick="setAnimeSource('embedsu',this)">Server 5</button>
         <a href="https://anilist.co/anime/${anilistId}" target="_blank" class="player-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px">📋 AniList</a>
       </div>
 
@@ -2155,13 +1875,13 @@ async function openAnime(anilistId,titleFallback){
         <div class="player-thumb" onclick="playAnime()">
           <div class="play-btn" style="background:#ff6b9d">▶</div>
           
-          
+          <p style="font-size:10px;color:var(--border);margin-top:4px">Auto-tries all sources</p>
         </div>
       </div>
 
-      <div class="sec-title">Your Rating</div>
+      <div class="sec-title">Rate & Review</div>
       <div class="review-box"><div class="review-stars" id="rStars">${starHtml}</div><textarea class="review-input" id="rText" placeholder="Write your review..."></textarea><button class="review-submit" onclick="submitReview('anime_${anilistId}')">Submit Review</button></div>
-      <div class="sec-title">Reviews</div>
+      <div class="sec-title">Community Reviews</div>
       <div class="reviews-list" id="rList"><div class="spinner" style="width:24px;height:24px;border-width:2px;margin:16px auto"></div></div>
     </div>`;
 
@@ -2194,7 +1914,7 @@ async function getHiAnimeStream(title, ep) {
 
     return streamData.default.url;
   } catch(e) {
-    
+    console.log('HiAnime API error:', e);
     return null;
   }
 }
@@ -2247,7 +1967,7 @@ async function playAnime(){
   // HiAnime not available (API not deployed yet) — use embed fallback
   window._playerQueue=[
     {url:getAnimeUrl('autoembed',ep,window._isDub), label:'🆕 AutoEmbed'},
-    {url:getAnimeUrl('vidplus',ep,window._isDub),   label:'🎌 VidPlus'},
+    {url:getAnimeUrl('vidplus',ep,window._isDub),   label:'Server 3'},
     {url:getAnimeUrl('vidsrc',ep,window._isDub),    label:'▶ VidSrc'},
     {url:getAnimeUrl('vidlink',ep,window._isDub),   label:'🔗 VidLink'},
     {url:getAnimeUrl('embedsu',ep,window._isDub),   label:'🔁 Embed.su'},
@@ -2259,7 +1979,7 @@ async function playAnime(){
 function fallbackToEmbed(ep){
   window._playerQueue=[
     {url:getAnimeUrl('autoembed',ep,window._isDub), label:'🆕 AutoEmbed'},
-    {url:getAnimeUrl('vidplus',ep,window._isDub),   label:'🎌 VidPlus'},
+    {url:getAnimeUrl('vidplus',ep,window._isDub),   label:'Server 3'},
     {url:getAnimeUrl('vidsrc',ep,window._isDub),    label:'▶ VidSrc'},
   ];
   window._playerIndex=0;
@@ -2341,26 +2061,223 @@ async function loadMoreAnime(){
 }
 
 // ── KEYBOARD ──
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();var ao=document.getElementById('authOverlay');if(ao&&ao.classList.contains('open'))closeAuth();}
+  if(e.key==='f'||e.key==='F')goFullscreen();
+});
 
-// ── INIT ──
+// ══ SMART PLAYER — Race all sources ══
+const IFRAME_ALLOW='autoplay; fullscreen; picture-in-picture; encrypted-media; screen-wake-lock';
+function autoPlay(){window._smartCancelled=false;smartRace();}
+async function smartRace(){
+  var queue=window._playerQueue||[];
+  if(!queue.length)return;
+  var wrap=document.getElementById('playerWrap');if(!wrap)return;
+  wrap.innerHTML='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(135deg,#060810,#120508)"><div style="width:48px;height:48px;border-radius:50%;border:3px solid rgba(229,9,20,0.2);border-top-color:#e50914;animation:spin 0.8s linear infinite"></div><p style="color:rgba(255,255,255,0.4);font-size:12px;font-family:DM Sans,sans-serif">Loading stream...</p></div>';
+  window._smartCancelled=false;
+  var won=false;
+  var hist=JSON.parse(localStorage.getItem('tavik_srv')||'{}');
+  var oq=[].concat(queue);
+  if(hist.best){var bi=oq.findIndex(function(s){return s.label===hist.best;});if(bi>0){var w2=oq.splice(bi,1)[0];oq.unshift(w2);}}
+  var frames=[];
+  var promises=oq.map(function(src){return new Promise(function(resolve){
+    var f=document.createElement('iframe');
+    f.src=src.url;f.style.cssText='position:fixed;top:-9999px;left:-9999px;width:300px;height:200px;opacity:0;pointer-events:none;border:0';
+    f.setAttribute('allow',IFRAME_ALLOW);f.setAttribute('allowfullscreen','true');
+    frames.push(f);document.body.appendChild(f);
+    var t=setTimeout(function(){resolve({ok:false,src:src,f:f});},7000);
+    f.onload=function(){clearTimeout(t);resolve({ok:true,src:src,f:f});};
+    f.onerror=function(){clearTimeout(t);resolve({ok:false,src:src,f:f});};
+  });});
+  for(var i=0;i<promises.length;i++){
+    var r=await promises[i];
+    if(r.ok&&!won&&!window._smartCancelled&&wrap===document.getElementById('playerWrap')){
+      won=true;
+      _playWinner(r.src.url,r.src.label,wrap);
+      localStorage.setItem('tavik_srv',JSON.stringify(Object.assign({},hist,{best:r.src.label})));
+      break;
+    }
+  }
+  setTimeout(function(){frames.forEach(function(f){if(f.parentNode&&!f.closest('#playerWrap'))f.remove();});},4000);
+  if(!won&&!window._smartCancelled){
+    if(wrap)wrap.innerHTML='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#060810,#120508);text-align:center;padding:24px"><div style="font-size:36px">📡</div><p style="color:rgba(255,255,255,0.7);font-size:14px;font-weight:700;font-family:Bebas Neue,sans-serif;letter-spacing:2px">UNAVAILABLE</p><p style="color:rgba(255,255,255,0.35);font-size:12px">Try another server</p><button onclick="autoPlay()" style="padding:10px 22px;background:#e50914;border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer">Try Again</button></div>';
+  }
+}
+function _playWinner(url,label,wrap){
+  if(!wrap||window._smartCancelled)return;
+  document.querySelectorAll('.player-btn').forEach(function(b){b.classList.toggle('active',b.textContent.trim()===label);});
+  wrap.innerHTML='';
+  var f=document.createElement('iframe');
+  f.src=url;f.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:0';
+  f.setAttribute('allow',IFRAME_ALLOW);f.setAttribute('allowfullscreen','true');
+  wrap.appendChild(f);
+  var g=document.createElement('div');
+  g.style.cssText='position:absolute;inset:0;z-index:2;cursor:pointer;background:transparent';
+  g.onclick=function(){g.remove();};
+  setTimeout(function(){if(g.parentNode)g.click();},600);
+  wrap.appendChild(g);
+  window._currentPlayerUrl=url;
+  if(window._currentMovie){var m=window._currentMovie;trackWatching(m.id,m.type,m.title,m.poster,m.year);}
+}
+
+// ══ SMART IMAGES ══
+function noPosterHtml(title,isTV){
+  var safe=(title||'').replace(/[<>"]/g,'').slice(0,40);
+  return '<div class="no-poster"><span style="font-size:26px;opacity:0.15">'+(isTV?'📺':'🎬')+'</span><span style="font-size:10px;color:rgba(255,255,255,0.25);text-align:center;padding:0 6px;line-height:1.4;max-height:40px;overflow:hidden">'+safe+'</span></div>';
+}
+function makePoster(path,title,isTV){
+  if(!path)return noPosterHtml(title,isTV);
+  var safe=(title||'').replace(/['"<>]/g,'');
+  var img=document.createElement('img');
+  img.className='movie-poster';
+  img.src='https://image.tmdb.org/t/p/w342'+path;
+  img.alt=safe;
+  img.loading='lazy';
+  img.onerror=function(){
+    this._t=(this._t||0)+1;
+    if(this._t===1){this.src='https://image.tmdb.org/t/p/w185'+path;}
+    else{this.outerHTML=noPosterHtml(safe,isTV);}
+  };
+  return img.outerHTML;
+}
+
+// ══ AD BLOCKER ══
+(function(){
+  var BAD=['brightadnetwork','ghtadnetwork','doubleclick','googlesyndication','adnxs','outbrain','taboola','mgid','popads','popcash','adsterra','propellerads','exoclick','trafficjunky','revcontent','adcash'];
+  var bad=function(u){if(!u)return false;var l=u.toLowerCase();return BAD.some(function(b){return l.indexOf(b)>=0;});};
+  var _orig=window.open;
+  window.open=function(url){if(!url||bad(url))return null;return _orig.apply(window,arguments);};
+  document.addEventListener('click',function(e){var a=e.target.closest('a');if(a&&bad(a.href)){e.preventDefault();e.stopPropagation();}},true);
+  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){
+    if(n.nodeType!==1)return;
+    var s=n.src||n.href||'';
+    if(bad(s)){n.remove();}
+  });});}).observe(document.documentElement,{childList:true,subtree:true});
+})();
+
+// ══ CONTINUE WATCHING ══
+function trackWatching(id,type,title,poster,year){
+  var p=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+  p[id]={id:id,type:type,title:title,poster:poster,year:year,pct:5,ts:Date.now()};
+  localStorage.setItem('tavik_progress',JSON.stringify(p));
+  setTimeout(function(){
+    var p2=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+    if(p2[id]){p2[id].pct=Math.floor(Math.random()*55)+15;localStorage.setItem('tavik_progress',JSON.stringify(p2));}
+    renderContinueWatching();
+  },12000);
+  renderContinueWatching();
+}
+function renderContinueWatching(){
+  var p=JSON.parse(localStorage.getItem('tavik_progress')||'{}');
+  var items=Object.values(p).sort(function(a,b){return b.ts-a.ts;}).slice(0,6);
+  var sec=document.getElementById('continueSection');
+  var g=document.getElementById('continueGrid');
+  if(!sec||!g)return;
+  if(!items.length){sec.style.display='none';return;}
+  sec.style.display='block';
+    g.innerHTML='';
+  items.forEach(function(m,i){
+    var div=document.createElement('div');
+    div.className='movie-card';
+    div.style.animationDelay=i*.04+'s';
+    div.onclick=function(){openItem(m.id,m.type);};
+    var posterHTML=m.poster
+      ?'<img class="movie-poster" src="https://image.tmdb.org/t/p/w342'+m.poster+'" loading="lazy" onerror="this.style.display=\'none\'">'
+      :'<div class="no-poster"><span style="font-size:22px;opacity:.15">▶</span></div>';
+    div.innerHTML=posterHTML
+      +'<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08)"><div style="height:100%;width:'+(m.pct||5)+'%;background:#e50914"></div></div>'
+      +'<div class="movie-info"><div class="movie-title">'+(m.title||'Unknown')+'</div>'
+      +'<div class="movie-meta"><span class="movie-year">'+(m.year||'')+'</span><span class="movie-rating" style="color:#21d07a;font-size:10px">▶ Resume</span></div></div>';
+    g.appendChild(div);
+  });
+}
+function clearContinue(){localStorage.removeItem('tavik_progress');var s=document.getElementById('continueSection');if(s)s.style.display='none';showToast('History cleared');}
+
+// ══ EXTRA CONTENT ══
+async function fetchKDrama(){var d=await api('/discover/tv?with_origin_country=KR&sort_by=popularity.desc&page=1');render((d.results||[]).slice(0,12),'kdramaGrid',false,false,true);}
+async function fetchAction(){var d=await api('/discover/movie?with_genres=28&sort_by=popularity.desc&page=1');render((d.results||[]).slice(0,12),'actionGrid');}
+async function fetchComedy(){var d=await api('/discover/movie?with_genres=35&sort_by=popularity.desc&page=1');render((d.results||[]).slice(0,12),'comedyGrid');}
+async function fetchTop10(){
+  var res=await Promise.all([api('/discover/movie?region=NG&sort_by=popularity.desc&page=1'),api('/trending/movie/week?page=1')]);
+  var seen=new Set();
+  var items=[].concat(res[0].results||[]).concat(res[1].results||[]).filter(function(m){if(seen.has(m.id))return false;seen.add(m.id);return true;}).slice(0,10);
+  var g=document.getElementById('top10Grid');if(g)g.innerHTML=items.map(function(m,i){return card(m,false,false,i,i+1);}).join('');
+}
+
+// ══ HERO ROTATE ══
+var _heroMovies=[],_heroIdx=0,_heroTimer=null,_heroSlot=1;
+async function initHero(){
+  var d=await api('/trending/all/week?page=1');
+  _heroMovies=(d.results||[]).filter(function(m){return m.backdrop_path;}).slice(0,8);
+  if(!_heroMovies.length)return;
+  setHero(0);buildHeroDots();
+  _heroTimer=setInterval(function(){setHero((_heroIdx+1)%_heroMovies.length);},7000);
+}
+function buildHeroDots(){var c=document.getElementById('heroDots');if(!c)return;c.innerHTML=_heroMovies.map(function(_,i){return '<button class="hero-dot'+(i===0?' active':'')+'" onclick="setHero('+i+')"></button>';}).join('');}
+function setHero(idx){
+  _heroIdx=idx;var m=_heroMovies[idx];if(!m)return;
+  var b1=document.getElementById('heroBg1'),b2=document.getElementById('heroBg2');
+  var next=_heroSlot===1?b2:b1,curr=_heroSlot===1?b1:b2;
+  if(next){next.src='https://image.tmdb.org/t/p/w1280'+m.backdrop_path;next.onload=function(){next.classList.add('active');setTimeout(function(){if(curr)curr.classList.remove('active');},500);_heroSlot=_heroSlot===1?2:1;};}
+  document.querySelectorAll('.hero-dot').forEach(function(d,i){d.classList.toggle('active',i===idx);});
+  var ct=document.getElementById('heroContent');if(ct){ct.style.opacity='0';ct.style.transform='translateY(8px)';}
+  setTimeout(function(){
+    var ht=document.getElementById('heroTitle'),hd=document.getElementById('heroDesc'),hb=document.getElementById('heroBadge');
+    if(ht)ht.innerHTML=(m.title||m.name||'').toUpperCase();
+    if(hd)hd.textContent=(m.overview||'').slice(0,130);
+    if(hb)hb.textContent=m.media_type==='tv'?'TV SERIES':'MOVIE';
+    if(ct){ct.style.transition='opacity .5s,transform .5s';ct.style.opacity='1';ct.style.transform='translateY(0)';}
+    window._heroMovie=m;
+  },220);
+}
+function heroPlay(){var m=window._heroMovie;if(m)openItem(m.id,m.media_type==='tv'?'tv':'movie');}
+function heroInfo(){var m=window._heroMovie;if(m)openItem(m.id,m.media_type==='tv'?'tv':'movie');}
+
+// ══ DOWNLOAD ══
+var _dlId=null,_dlType=null,_dlTitle=null,_dlQ='720p';
+var DL_SZ={'1080p':{movie:'~2.5 GB',tv:'~500 MB'},'720p':{movie:'~1.2 GB',tv:'~300 MB'},'480p':{movie:'~600 MB',tv:'~150 MB'},'360p':{movie:'~300 MB',tv:'~80 MB'}};
+function startDownload(id,type,title){_dlId=id;_dlType=type;_dlTitle=title;var p=document.getElementById('dlPanel');if(p){renderDlSources();p.classList.add('show');}}
+function closeDlPanel(){var p=document.getElementById('dlPanel');if(p)p.classList.remove('show');}
+function selectQuality(q,btn){_dlQ=q;document.querySelectorAll('.dl-q-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');renderDlSources();}
+function renderDlSources(){
+  var list=document.getElementById('dlSourceList');if(!list||!_dlId)return;
+  var sz=(DL_SZ[_dlQ]||{})[_dlType]||'~varies';
+  var sources=[
+    {name:'Server A',info:_dlQ+' · MP4',url:'https://dl.vidsrc.vip/'+_dlType+'/'+_dlId},
+    {name:'Server B',info:_dlQ+' · Fast',url:'https://vidsrc.me/embed/'+_dlType+'/'+_dlId+'?download=1'},
+    {name:'Server C',info:_dlQ+' · Reliable',url:'https://vidsrc.cc/v2/embed/'+_dlType+'/'+_dlId+'?download=1'},
+  ];
+  window._dlSources=sources;
+  list.innerHTML='<div style="font-size:10px;color:var(--muted);padding:0 0 10px">Est. size: <strong style="color:var(--text)">'+sz+'</strong></div>'
+    +sources.map(function(s,i){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div><div style="font-size:12px;font-weight:600">'+s.name+'</div><div style="font-size:10px;color:var(--muted)">'+s.info+'</div></div><button onclick="triggerDl('+i+')" id="dlBtn_'+i+'" style="padding:5px 12px;border-radius:7px;background:var(--accent);color:white;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif">Download</button></div>';}).join('');
+}
+function triggerDl(i){
+  var src=(window._dlSources||[])[i];if(!src)return;
+  var btn=document.getElementById('dlBtn_'+i);
+  if(btn){btn.textContent='Starting...';btn.style.opacity='.6';btn.disabled=true;}
+  var a=document.createElement('a');a.href=src.url;a.target='_blank';a.rel='noopener';
+  try{a.download=(_dlTitle||'video').replace(/[^a-zA-Z0-9 ]/g,'_')+'_'+_dlQ+'.mp4';}catch(e){}
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){if(btn){btn.textContent='Started';btn.style.background='rgba(33,208,122,0.15)';btn.style.color='#21d07a';}},800);
+  showToast('Download started — check your downloads folder');
+  closeDlPanel();
+}
+
+// ══ BACK TO TOP ══
+window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(b){b.style.opacity=window.scrollY>600?'1':'0';b.style.pointerEvents=window.scrollY>600?'all':'none';}},{passive:true});
+
+// ── INIT ALL ──
 fetchTrending();fetchPopular();fetchTV();fetchNetflix();
+initHero();
+fetchTop10();
+setTimeout(function(){fetchKDrama();fetchAction();fetchComedy();renderContinueWatching();['kdramaSection','actionSection','comedySection'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='block';});},600);
 
-// ── AUTH READY — flush pending auth after functions defined ──
-if(window._pendingUser!==undefined&&typeof onAuthChange==='function'){onAuthChange(window._pendingUser);}
+// ── AUTH ──
 
-
-
-// ══════════════════════════════════════
-// AUTH FUNCTIONS
-// ══════════════════════════════════════
-
-let _watchlist={};
-
-function openAuth(tab){
+function openAuth(tab='in'){
   document.getElementById('authOverlay').classList.add('open');
   document.body.style.overflow='hidden';
-  switchAuthTab(tab||'up');
+  switchAuthTab(tab);
   clearAuthErr();
 }
 function closeAuth(){
@@ -2374,188 +2291,155 @@ function switchAuthTab(t){
   document.getElementById('authTabUp').classList.toggle('active',t==='up');
   clearAuthErr();
 }
-function showAuthErr(msg){
-  const e=document.getElementById('authErr');
-  if(!e)return;
-  e.innerHTML=msg;
-  e.classList.add('show');
-}
-function clearAuthErr(){
-  const e=document.getElementById('authErr');
-  if(e){e.innerHTML='';e.classList.remove('show');}
-}
+function showAuthErr(msg){const e=document.getElementById('authErr');if(e){e.textContent=msg;e.classList.add('show');}}
+function clearAuthErr(){const e=document.getElementById('authErr');if(e){e.textContent='';e.classList.remove('show');}}
 
-// ── GOOGLE SIGN IN ──
+// ══ AUTH ══
+let _watchlist={};
+
+function openAuth(tab){
+  var o=document.getElementById('authOverlay');
+  if(o)o.classList.add('open');
+  document.body.style.overflow='hidden';
+  switchAuthTab(tab||'up');
+  clearAuthErr();
+}
+function closeAuth(){
+  var o=document.getElementById('authOverlay');
+  if(o)o.classList.remove('open');
+  document.body.style.overflow='';
+}
+function switchAuthTab(t){
+  var fi=document.getElementById('authFormIn');
+  var fu=document.getElementById('authFormUp');
+  var ti=document.getElementById('authTabIn');
+  var tu=document.getElementById('authTabUp');
+  if(fi)fi.style.display=t==='in'?'block':'none';
+  if(fu)fu.style.display=t==='up'?'block':'none';
+  if(ti)ti.classList.toggle('active',t==='in');
+  if(tu)tu.classList.toggle('active',t==='up');
+  clearAuthErr();
+}
+function showAuthErr(msg){var e=document.getElementById('authErr');if(e){e.textContent=msg;e.classList.add('show');}}
+function clearAuthErr(){var e=document.getElementById('authErr');if(e){e.textContent='';e.classList.remove('show');}}
+
 async function doGoogleSignIn(){
-  if(!window._fb?.ready){showAuthErr('Loading… try again in a moment');return;}
-  const btn=document.querySelector('.auth-google-btn');
-  if(btn){btn.disabled=true;btn.innerHTML='<span style="opacity:.6">Connecting to Google...</span>';}
+  if(!window._fb||!window._fb.ready){showAuthErr('Loading, please try again');return;}
+  var btn=document.querySelector('.auth-google-btn');
+  if(btn){btn.disabled=true;}
   clearAuthErr();
   try{
-    const result=await window._fb.signInGoogle();
-    if(result?.user){
+    var result=await window._fb.signInGoogle();
+    if(result&&result.user){
       window._user=result.user;
       closeAuth();
       onAuthChange(result.user);
     }
   }catch(e){
-    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
-      // User closed — do nothing
-    }else if(e.code==='auth/popup-blocked'){
-      showAuthErr('Popup blocked. Please allow popups for this site, or use email sign in below.');
-    }else if(e.code==='auth/network-request-failed'){
-      showAuthErr('No internet connection. Check your connection and try again.');
-    }else{
-      showAuthErr('Google sign in failed. Please use email instead.');
-    }
+    if(e.code==='auth/popup-closed-by-user'){}
+    else if(e.code==='auth/popup-blocked'){showAuthErr('Popup blocked. Please allow popups or use email.');}
+    else{showAuthErr('Google sign in failed. Use email instead.');}
   }finally{
-    if(btn){btn.disabled=false;btn.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continue with Google`;}
+    if(btn){btn.disabled=false;}
   }
 }
 
-// ── EMAIL SIGN IN ──
 async function doEmailSignIn(){
-  if(!window._fb?.ready){showAuthErr('Loading… try again');return;}
-  const email=document.getElementById('inEmail')?.value.trim();
-  const pass=document.getElementById('inPass')?.value;
-  if(!email||!pass){showAuthErr('Please fill in both fields');return;}
-  if(!/\S+@\S+\.\S+/.test(email)){showAuthErr('Please enter a valid email address');return;}
-  const btn=document.getElementById('inBtn');
+  if(!window._fb)return;
+  var email=document.getElementById('inEmail')&&document.getElementById('inEmail').value.trim();
+  var pass=document.getElementById('inPass')&&document.getElementById('inPass').value;
+  if(!email||!pass){showAuthErr('Fill in both fields');return;}
+  var btn=document.getElementById('inBtn');
   if(btn){btn.disabled=true;btn.textContent='Signing in...';}
   clearAuthErr();
   try{
-    const result=await window._fb.signInEmail(email,pass);
-    window._user=result.user;
+    var r=await window._fb.signInEmail(email,pass);
+    window._user=r.user;
     closeAuth();
-    onAuthChange(result.user);
+    onAuthChange(r.user);
   }catch(err){
-    const msgs={
-      'auth/user-not-found':'No account with this email. Want to create one?',
-      'auth/wrong-password':'Wrong password. Try again.',
-      'auth/invalid-credential':'Email or password is incorrect.',
-      'auth/invalid-email':'Please enter a valid email.',
-      'auth/too-many-requests':'Too many attempts. Wait a few minutes.',
-      'auth/network-request-failed':'No internet. Check your connection.',
-      'auth/user-disabled':'This account has been disabled.'
-    };
-    const msg=msgs[err.code]||'Sign in failed. Check your details.';
+    var msgs={'auth/user-not-found':'No account with this email.','auth/wrong-password':'Wrong password.','auth/invalid-credential':'Email or password incorrect.','auth/too-many-requests':'Too many attempts. Wait a moment.','auth/invalid-email':'Invalid email address.'};
+    var msg=msgs[err.code]||'Sign in failed.';
     showAuthErr(msg);
-    if(err.code==='auth/user-not-found'){
-      setTimeout(()=>switchAuthTab('up'),1800);
-    }
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='Sign In';}
-  }
+    if(err.code==='auth/user-not-found')setTimeout(function(){switchAuthTab('up');},1500);
+  }finally{if(btn){btn.disabled=false;btn.textContent='Sign In';}}
 }
 
-// ── EMAIL SIGN UP ──
 async function doEmailSignUp(){
-  if(!window._fb?.ready){showAuthErr('Loading… try again');return;}
-  const name=document.getElementById('upName')?.value.trim();
-  const email=document.getElementById('upEmail')?.value.trim();
-  const pass=document.getElementById('upPass')?.value;
-  if(!name||!email||!pass){showAuthErr('Please fill in all fields');return;}
-  if(!/\S+@\S+\.\S+/.test(email)){showAuthErr('Please enter a valid email address');return;}
-  if(pass.length<6){showAuthErr('Password must be at least 6 characters');return;}
-  const btn=document.getElementById('upBtn');
+  if(!window._fb)return;
+  var name=document.getElementById('upName')&&document.getElementById('upName').value.trim();
+  var email=document.getElementById('upEmail')&&document.getElementById('upEmail').value.trim();
+  var pass=document.getElementById('upPass')&&document.getElementById('upPass').value;
+  if(!name||!email||!pass){showAuthErr('Fill in all fields');return;}
+  if(pass.length<6){showAuthErr('Password needs at least 6 characters');return;}
+  var btn=document.getElementById('upBtn');
   if(btn){btn.disabled=true;btn.textContent='Creating account...';}
   clearAuthErr();
   try{
-    const result=await window._fb.signUpEmail(email,pass);
-    // Set display name immediately
-    await window._fb.updateProfile(result.user,{displayName:name});
-    result.user.displayName=name;
-    window._user=result.user;
+    var r=await window._fb.signUpEmail(email,pass);
+    await window._fb.updateProfile(r.user,{displayName:name});
+    r.user.displayName=name;
+    window._user=r.user;
     closeAuth();
-    onAuthChange(result.user);
+    onAuthChange(r.user);
   }catch(err){
-    const msgs={
-      'auth/email-already-in-use':'An account with this email already exists. Sign in instead.',
-      'auth/invalid-email':'Please enter a valid email.',
-      'auth/weak-password':'Password too weak. Use at least 6 characters.',
-      'auth/network-request-failed':'No internet. Check your connection.'
-    };
-    showAuthErr(msgs[err.code]||'Sign up failed. Try again.');
-    if(err.code==='auth/email-already-in-use'){
-      setTimeout(()=>switchAuthTab('in'),1800);
-    }
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='Create Free Account';}
-  }
+    var msgs={'auth/email-already-in-use':'Email already registered. Sign in instead.','auth/invalid-email':'Invalid email.','auth/weak-password':'Password too weak.'};
+    showAuthErr(msgs[err.code]||'Sign up failed.');
+    if(err.code==='auth/email-already-in-use')setTimeout(function(){switchAuthTab('in');},1500);
+  }finally{if(btn){btn.disabled=false;btn.textContent='Create Free Account';}}
 }
 
-// ── AUTH STATE CHANGE — single handler for everything ──
 function onAuthChange(user){
   window._user=user||null;
-
-  // 1. Update nav button
-  const area=document.getElementById('navAuthArea');
+  var area=document.getElementById('navAuthArea');
   if(area){
     if(user){
-      const init=(user.displayName||user.email||'U')[0].toUpperCase();
-      area.innerHTML=`<div class="nav-avatar" onclick="showTab('profile')" title="${user.displayName||user.email||''}">${init}</div>`;
+      var init=(user.displayName||user.email||'U')[0].toUpperCase();
+      var _av=document.createElement('div');
+      _av.className='nav-avatar';
+      _av.textContent=init;
+      _av.title=user.displayName||user.email||'';
+      _av.onclick=function(){showTab('profile');};
+      area.innerHTML='';
+      area.appendChild(_av);
     }else{
-      area.innerHTML=`<button class="nav-signin-btn" onclick="openAuth()">Sign In</button>`;
+      area.innerHTML='<button class="nav-signin-btn" onclick="openAuth()">Sign In</button>';
     }
   }
-
-  // 2. Update bottom nav profile icon
-  const bpBtn=document.getElementById('bn-profile');
-  if(bpBtn){
-    const existing=bpBtn.querySelector('.bnav-avatar');
-    if(user){
-      const init=(user.displayName||user.email||'U')[0].toUpperCase();
-      if(!existing){
-        const old=bpBtn.querySelector('svg');
-        if(old)old.outerHTML=`<div class="bnav-avatar" style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white">${init}</div>`;
-      }else{
-        existing.textContent=init;
-      }
-    }else{
-      if(existing)existing.outerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
-    }
-  }
-
-  // 3. Close auth overlay if open
-  const overlay=document.getElementById('authOverlay');
-  if(overlay?.classList.contains('open')&&user){
+  var overlay=document.getElementById('authOverlay');
+  if(overlay&&overlay.classList.contains('open')&&user){
     overlay.classList.remove('open');
     document.body.style.overflow='';
   }
-
-  // 4. Load watchlist
-  if(user) loadWatchlist();
+  var bpBtn=document.getElementById('bn-profile');
+  if(bpBtn){
+    var old2=bpBtn.querySelector('.bnav-av');
+    if(user){
+      var init2=(user.displayName||user.email||'U')[0].toUpperCase();
+      if(!old2){
+        var svg=bpBtn.querySelector('svg');
+        if(svg)svg.outerHTML='<div class="bnav-av" style="width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white">'+init2+'</div>';
+      }else{old2.textContent=init2;}
+    }else{
+      if(old2){var _svg=document.createElementNS('http://www.w3.org/2000/svg','svg');_svg.setAttribute('viewBox','0 0 24 24');_svg.setAttribute('fill','none');_svg.setAttribute('stroke-width','2');_svg.style.cssText='width:22px;height:22px;stroke:currentColor';_svg.innerHTML='<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';old2.parentNode.replaceChild(_svg,old2);}
+    }
+  }
+  if(user)loadWatchlist();
   else _watchlist={};
-
-  // 5. Refresh profile page
-  if(typeof renderProfile==='function') renderProfile();
-
-  // 6. Welcome toast — only once per session
-  if(user&&!window._greeted){
-    window._greeted=true;
-    const name=user.displayName?.split(' ')[0]||'';
-    showToast('Welcome'+(name?' '+name:'')+'! 👋');
-  }
+  if(!user&&!window._greeted2){}
+  else if(user&&!window._greeted){window._greeted=true;showToast('Welcome '+(user.displayName?user.displayName.split(' ')[0]:'')+' 👋');}
+  renderProfile();
 }
 
-// ── SIGN OUT ──
-
-// ── FLUSH PENDING AUTH ──
-// Called after all functions are defined
-function _initAuth(){
-  // Register for auth updates
-  window.onAuthReady(user=>{
-    window._user=user||null;
-    onAuthChange(user);
-  });
-  // Also handle pending user from before functions were defined
-  if(window._pendingUser!==undefined){
-    onAuthChange(window._pendingUser);
-  }
+async function doSignOut(){
+  if(window._fb)await window._fb.signOut();
+  window._user=null;
+  window._greeted=false;
+  _watchlist={};
+  onAuthChange(null);
+  showToast('Signed out');
+  showTab('home');
 }
-// Call immediately + after DOM ready
-_initAuth();
-document.addEventListener('DOMContentLoaded',_initAuth);
 
 
 // ── WATCHLIST ──
@@ -2606,7 +2490,7 @@ function renderWatchlist(){
     return;
   }
   grid.innerHTML=items.map((m,i)=>{
-    const poster=m.poster?`<img class="movie-poster" src="${IMG}${m.poster}" loading="lazy" onerror="this._t=(this._t||0)+1;if(this._t<3){this.src='https://image.tmdb.org/t/p/w185'+'${m.poster}'}else{this.outerHTML=noPosterHtml('${m.title||''}',false)}">`:`<div class="no-poster">🎬</div>`;
+    const poster=m.poster?`<img class="movie-poster" src="${IMG}${m.poster}" loading="lazy" onerror="this.outerHTML='<div class=no-poster>🎬</div>'">`:`<div class="no-poster">🎬</div>`;
     return `<div class="movie-card" style="animation-delay:${i*0.04}s" onclick="openItem(${m.id},'${m.type}')">
       ${poster}
       <button class="heart-btn saved" data-id="${m.id}" onclick="toggleWatchlist('${m.id}','${m.type}','${(m.title||'').replace(/'/g,"\'")}','${m.poster||''}','${m.year||''}','${m.rating||''}',event)">♥</button>
@@ -2622,26 +2506,14 @@ function renderWatchlist(){
 function renderProfile(){
   const el=document.getElementById('profileContent');
   if(!el)return;
-  // If auth not yet resolved, show loading and retry
-  if(!window._authReady){
-    el.innerHTML='<div style="text-align:center;padding:60px"><div class="spinner" style="margin:0 auto 16px;width:28px;height:28px;border-width:2px"></div><p style="color:var(--muted);font-size:13px">Loading...</p></div>';
-    setTimeout(renderProfile,500);
-    return;
-  }
   const user=window._user;
   if(!user){
-    el.innerHTML=`
-    <div style="text-align:center;padding:48px 20px 32px">
-      <div style="width:80px;height:80px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px">👤</div>
-      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:6px">Welcome to TAVIK</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.6">Sign in to save your watchlist,<br>track what you've watched, and more.</p>
-      <button onclick="openAuth('up')" style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">Create Free Account</button>
-      <button onclick="openAuth('in')" style="width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:16px">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px"><span>♥</span><span>Watchlist synced across devices</span></div>
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px"><span>▶</span><span>Continue watching where you left off</span></div>
-      <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px"><span>⭐</span><span>Rate & review movies</span></div>
+    el.innerHTML=`<div style="text-align:center;padding:60px 20px">
+      <div style="font-size:56px;margin-bottom:16px">👤</div>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;margin-bottom:8px">Sign In to TAVIK</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Save your watchlist across all devices</p>
+      <button onclick="openAuth()" style="padding:13px 28px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted)">No account? <span onclick="openAuth('up')" style="color:var(--accent);cursor:pointer">Create one free</span></p>
     </div>`;
     return;
   }
@@ -2672,6 +2544,13 @@ function renderProfile(){
     <button class="profile-signout" onclick="doSignOut()">Sign Out</button>`;
 }
 
+async function doSignOut(){
+  await window._fb.signOut();
+  window._user=null;
+  _watchlist={};
+  showToast('Signed out');
+  showTab('home');
+}
 
 // ── BOTTOM NAV ──
 function bnav(tab,btn){
@@ -2685,20 +2564,11 @@ function applyLayout(){
   const mobile=window.innerWidth<=900;
   const nav=document.getElementById('bottomNav');
   const tabs=document.querySelector('.nav-tabs');
-  const burger=document.getElementById('menuBtn');
   if(nav)nav.style.display=mobile?'block':'none';
   if(tabs)tabs.style.display=mobile?'none':'flex';
-  if(burger)burger.style.display=mobile?'flex':'none';
-  // Add safe area padding to body for notch phones
-  if(mobile){
-    document.body.style.paddingBottom='env(safe-area-inset-bottom,0px)';
-  } else {
-    document.body.style.paddingBottom='';
-  }
 }
 applyLayout();
 window.addEventListener('resize',applyLayout);
-window.addEventListener('orientationchange',()=>setTimeout(applyLayout,300));
 setTimeout(applyLayout,50);
 setTimeout(applyLayout,500);
 
@@ -2715,69 +2585,6 @@ showTab=function(tab,btn){
 // ══════════════════════════════════════
 // HERO — Auto-rotating with real backdrops
 // ══════════════════════════════════════
-let _heroMovies=[];
-let _heroIdx=0;
-let _heroTimer=null;
-let _heroCurrent=1; // which img element is active (1 or 2)
-
-async function initHero(){
-  const d=await api('/trending/all/week?page=1');
-  _heroMovies=(d.results||[]).filter(m=>m.backdrop_path).slice(0,8);
-  if(!_heroMovies.length)return;
-  setHero(0);
-  buildHeroDots();
-  _heroTimer=setInterval(()=>setHero((_heroIdx+1)%_heroMovies.length),7000);
-}
-
-function buildHeroDots(){
-  const c=document.getElementById('heroDots');
-  if(!c)return;
-  c.innerHTML=_heroMovies.map((_,i)=>`<button class="hero-dot${i===0?' active':''}" onclick="setHero(${i})"></button>`).join('');
-}
-
-function setHero(idx){
-  _heroIdx=idx;
-  const m=_heroMovies[idx];
-  if(!m)return;
-  // Cross-fade backdrops
-  const bg1=document.getElementById('heroBg1');
-  const bg2=document.getElementById('heroBg2');
-  const nextEl=_heroCurrent===1?bg2:bg1;
-  const currEl=_heroCurrent===1?bg1:bg2;
-  nextEl.src=`${BG}${m.backdrop_path}`;
-  nextEl.onload=()=>{
-    nextEl.classList.add('active');
-    setTimeout(()=>{currEl.classList.remove('active');},500);
-    _heroCurrent=_heroCurrent===1?2:1;
-  };
-  // Update dots
-  document.querySelectorAll('.hero-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
-  // Update text with animation
-  const content=document.getElementById('heroContent');
-  if(content){content.style.opacity='0';content.style.transform='translateY(10px)';}
-  setTimeout(()=>{
-    const title=m.title||m.name||'';
-    const desc=(m.overview||'').slice(0,120)+(m.overview?.length>120?'...':'');
-    const isTV=m.media_type==='tv';
-    const year=(m.release_date||m.first_air_date||'').slice(0,4);
-    const rating=m.vote_average?.toFixed(1);
-    const el=t=>document.getElementById(t);
-    if(el('heroTitle'))el('heroTitle').innerHTML=title.toUpperCase();
-    if(el('heroDesc'))el('heroDesc').textContent=desc||'Tap to watch now.';
-    if(el('heroBadge'))el('heroBadge').textContent=isTV?'📺 SERIES':'🎬 MOVIE';
-    if(content){content.style.transition='opacity 0.5s,transform 0.5s';content.style.opacity='1';content.style.transform='translateY(0)';}
-    window._heroMovie=m;
-  },200);
-}
-
-function heroPlay(){
-  const m=window._heroMovie;
-  if(m)openItem(m.id,m.media_type==='tv'?'tv':'movie');
-}
-function heroInfo(){
-  const m=window._heroMovie;
-  if(m)openItem(m.id,m.media_type==='tv'?'tv':'movie');
-}
 
 // ══════════════════════════════════════
 // TOP 10 NIGERIA
@@ -2862,6 +2669,27 @@ showTab=function(tab,btn){
 // BUG FIXES FOR AUTH
 // ══════════════════════════════════════
 
+// Fix: Google popup blocked on mobile — use redirect instead
+async function doGoogleSignIn(){
+  if(!window._fb){showAuthErr('Still loading, please wait...');return;}
+  try{
+    // Try popup first (works on desktop)
+    await window._fb.signInGoogle();
+    closeAuth();
+    showToast('Welcome! 👋');
+  }catch(e){
+    if(e.code==='auth/popup-blocked'||e.code==='auth/cancelled-popup-request'){
+      // Popup blocked — try redirect
+      try{
+        const{getAuth,signInWithRedirect,GoogleAuthProvider}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+        await signInWithRedirect(window._fb.auth,window._fb.gp);
+      }catch(e2){showAuthErr('Google sign-in failed. Use email instead.');}
+    }else if(e.code!=='auth/popup-closed-by-user'){
+      showAuthErr('Google sign-in failed. Try email instead.');
+    }
+  }
+}
+
 // Fix: Enter key submits auth forms
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeModal();closeAuth();}
@@ -2882,121 +2710,121 @@ fetchTop10();
 renderContinueWatching();
 
 
-// ══════════════════════════════════════
-// SMART FEATURES
-// ══════════════════════════════════════
+// ══ TV SEASON/EPISODE PICKER ══
+window._tvId=null;
+window._tvSeason=1;
+window._tvEpisode=1;
 
-// Smart: Remember which server worked last for this user
-// Next time they play — try that server first
-function getSmartQueue(baseQueue){
-  const history=JSON.parse(localStorage.getItem('tavik_srv')||'{}');
-  const best=history.best;
-  if(!best)return baseQueue;
-  // Move best server to front
-  const idx=baseQueue.findIndex(s=>s.label===best);
-  if(idx>0){
-    const q=[...baseQueue];
-    const [winner]=q.splice(idx,1);
-    q.unshift(winner);
-    return q;
+async function onSeasonChange(id,season){
+  window._tvSeason=parseInt(season);
+  window._tvEpisode=1;
+  // Fetch episode list for this season
+  const data=await api('/tv/'+id+'/season/'+season);
+  const eps=data.episodes||[];
+  const sel=document.getElementById('episodeSel');
+  if(sel){
+    sel.innerHTML=eps.length
+      ?eps.map((e,i)=>`<option value="${e.episode_number||i+1}">Ep ${e.episode_number||i+1}: ${(e.name||'Episode '+(i+1)).slice(0,30)}</option>`).join('')
+      :'<option value="1">Episode 1</option>';
   }
-  return baseQueue;
-}
-function rememberServer(label){
-  try{
-    const h=JSON.parse(localStorage.getItem('tavik_srv')||'{}');
-    h.best=label;
-    h[label]=(h[label]||0)+1;
-    localStorage.setItem('tavik_srv',JSON.stringify(h));
-  }catch(e){}
+  updateTVPlayer(id);
 }
 
-// Smart: Auto-play next episode for TV shows
-let _currentSeason=1,_currentEp=1,_totalEps=1;
-function setupNextEpisode(seasons,totalEps){
-  _totalEps=totalEps||1;
+function onEpChange(id){
+  const sel=document.getElementById('episodeSel');
+  if(sel)window._tvEpisode=parseInt(sel.value)||1;
+  updateTVPlayer(id);
 }
-function playNextEp(id,type,currentEp){
-  if(type!=='tv')return;
-  const next=currentEp+1;
-  if(next>_totalEps)return;
-  showToast('▶ Next episode starting...');
-  setTimeout(()=>{
-    const wrap=document.getElementById('playerWrap');
-    if(!wrap?.querySelector('iframe'))return;
-    // Update episode in URL
-    const q=window._playerQueue||[];
-    const newQ=q.map(s=>({...s,url:s.url.replace(/\/1\/\d+/,`/1/${next}`).replace(/-1-\d+/,`-1-${next}`)}));
-    window._playerQueue=newQ;
+
+function changeEp(id,dir){
+  const sel=document.getElementById('episodeSel');
+  if(!sel)return;
+  const opts=sel.options;
+  const curr=sel.selectedIndex;
+  const next=curr+dir;
+  if(next>=0&&next<opts.length){
+    sel.selectedIndex=next;
+    window._tvEpisode=parseInt(opts[next].value)||1;
+    updateTVPlayer(id);
+    showToast(dir>0?'Next episode ▶':'Previous episode ◀');
+  }else if(dir>0){
+    showToast('Last episode of this season');
+  }else{
+    showToast('First episode of this season');
+  }
+}
+
+function updateTVPlayer(id){
+  const s=window._tvSeason||1;
+  const e=window._tvEpisode||1;
+  const imdbId=window._currentMovie?.imdbId||'';
+  // Rebuild player queue with new season/episode
+  const newQueue=[
+    {url:`https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=false`,label:'Server 1'},
+    {url:`https://player.vidplus.to/embed/tv/${id}/${s}/${e}?autoplay=false`,label:'Server 2'},
+    {url:`https://vidsrc.me/embed/tv/${id}?season=${s}&episode=${e}`,label:'Server 3'},
+    {url:`https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`,label:'Server 4'},
+    {url:`https://embed.su/embed/tv/${id}/${s}/${e}`,label:'Server 5'},
+    {url:`https://autoembed.co/tv/tmdb/${id}-${s}-${e}`,label:'Server 6'},
+    {url:`https://moviesapi.club/tv/${id}/${s}/${e}`,label:'Server 7'},
+    {url:`https://www.2embed.online/embed/tv/${imdbId||id}/${s}/${e}`,label:'Server 8'},
+  ];
+  window._playerQueue=newQueue;
+  window._playerIndex=0;
+  // If player is already open, restart
+  const wrap=document.getElementById('playerWrap');
+  if(wrap&&wrap.querySelector('iframe')){
     autoPlay();
-  },3000);
-}
-
-// Smart: Keyboard shortcuts
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModal();closeAuth();}
-  if(e.key==='f'||e.key==='F'){goFullscreen();}
-  if(e.key===' '){
-    e.preventDefault();
-    const wrap=document.getElementById('playerWrap');
-    if(wrap?.querySelector('iframe'))return; // already playing
-    autoPlay();
   }
-});
+}
 
-// Smart: Smooth skeleton loading — stagger cards
-function renderWithStagger(items,gridId,append=false,netflix=false,tv=false){
-  const g=document.getElementById(gridId);if(!g)return;
-  if(!items.length){
-    g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><p>Nothing found</p></div>';
-    return;
+
+// ══ TAVTOONS ══
+var _toonsCategory='all';
+var TOONS_NETWORKS={
+  cn:2739,   // Cartoon Network
+  disney:2,  // Disney Channel  
+  nick:13,   // Nickelodeon
+};
+var TOONS_COMPANIES={
+  pixar:3,   // Pixar
+};
+
+async function loadToons(cat,btn){
+  _toonsCategory=cat;
+  document.querySelectorAll('#toonsFilters .anime-filter-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  var g=document.getElementById('toonsGrid');
+  if(g)g.innerHTML='<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+
+  var results=[];
+  if(cat==='all'){
+    var d=await api('/discover/movie?with_genres=16&sort_by=popularity.desc&page=1');
+    results=(d.results||[]);
+  }else if(cat==='cn'){
+    var d=await api('/discover/tv?with_networks=2739&sort_by=popularity.desc&page=1');
+    results=(d.results||[]);
+  }else if(cat==='disney'){
+    var d=await api('/discover/tv?with_networks=54&sort_by=popularity.desc&page=1');
+    results=(d.results||[]);
+  }else if(cat==='nick'){
+    var d=await api('/discover/tv?with_networks=13&sort_by=popularity.desc&page=1');
+    results=(d.results||[]);
+  }else if(cat==='pixar'){
+    var d=await api('/discover/movie?with_companies=3&sort_by=popularity.desc&page=1');
+    results=(d.results||[]);
   }
-  // Render in batches of 4 for smooth feel
-  const html=items.map((m,i)=>card(m,netflix,tv,i)).join('');
-  if(append)g.insertAdjacentHTML('beforeend',html);
-  else g.innerHTML=html;
+
+  var isTV=(cat==='cn'||cat==='disney'||cat==='nick');
+  results=results.slice(0,16);
+  if(g)g.innerHTML=results.map(function(m,i){return card(m,false,isTV,i);}).join('');
 }
 
-// Smart: Lazy load images with IntersectionObserver
-if('IntersectionObserver' in window){
-  const imgObs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){
-        const img=e.target;
-        if(img.dataset.src){img.src=img.dataset.src;delete img.dataset.src;}
-        imgObs.unobserve(img);
-      }
-    });
-  },{rootMargin:'200px'});
-  window._imgObs=imgObs;
+async function loadMoreToons(){
+  var g=document.getElementById('toonsGrid');
+  var d=await api('/discover/movie?with_genres=16&sort_by=popularity.desc&page=2');
+  if(g)g.insertAdjacentHTML('beforeend',(d.results||[]).slice(0,8).map(function(m,i){return card(m,false,false,i);}).join(''));
 }
-
-// Smart: Preload next likely movie when hovering a card
-let _preloadTimer;
-document.addEventListener('mouseover',e=>{
-  const card=e.target.closest('.movie-card');
-  if(!card)return;
-  clearTimeout(_preloadTimer);
-  _preloadTimer=setTimeout(()=>{
-    const onclick=card.getAttribute('onclick')||'';
-    const match=onclick.match(/openItem\((\d+)/);
-    if(match){
-      const id=match[1];
-      // Silently prefetch movie data
-      const KEY='d34e79d2e68114d4b43e1761b3612bd3';
-      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}`).catch(()=>{});
-    }
-  },300);
-});
-
-// Smart: Show "Back to Top" when scrolled far
-window.addEventListener('scroll',()=>{
-  const btn=document.getElementById('backToTop');
-  if(!btn)return;
-  btn.style.opacity=window.scrollY>600?'1':'0';
-  btn.style.pointerEvents=window.scrollY>600?'all':'none';
-},{passive:true});
-
 
 </script>
 
@@ -3012,60 +2840,20 @@ window.addEventListener('scroll',()=>{
     </button>
     <div class="auth-divider">or use email</div>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="authTabUp" onclick="switchAuthTab('up')">Create Account</button>
-      <button class="auth-tab" id="authTabIn" onclick="switchAuthTab('in')">Sign In</button>
+      <button class="auth-tab active" id="authTabIn" onclick="switchAuthTab('in')">Sign In</button>
+      <button class="auth-tab" id="authTabUp" onclick="switchAuthTab('up')">Sign Up</button>
     </div>
     <div class="auth-err" id="authErr"></div>
-    <div id="authFormUp">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">New to TAVIK? Create a free account to save your watchlist and continue watching across all devices.</p>
-      <div class="auth-field"><label>Your Name</label><input class="auth-input" type="text" id="upName" placeholder="Full name"></div>
-      <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="upEmail" placeholder="you@email.com" autocomplete="email"></div>
-      <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="upPass" placeholder="Min 6 characters" autocomplete="new-password"></div>
-      <button class="auth-submit" id="upBtn" onclick="doEmailSignUp()">Create Free Account</button>
-    </div>
-    <div id="authFormIn" style="display:none">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Already have a TAVIK account? Sign in to access your watchlist.</p>
+    <div id="authFormIn">
       <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="inEmail" placeholder="you@email.com" autocomplete="email"></div>
       <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="inPass" placeholder="Password" autocomplete="current-password"></div>
       <button class="auth-submit" id="inBtn" onclick="doEmailSignIn()">Sign In</button>
-      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">No account? <span onclick="switchAuthTab('up')" style="color:var(--accent);cursor:pointer;font-weight:600">Create one free →</span></p>
     </div>
-  </div>
-</div>
-
-
-<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="position:fixed;bottom:80px;right:16px;z-index:190;width:40px;height:40px;border-radius:50%;background:var(--accent);color:white;border:none;font-size:18px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 4px 16px rgba(229,9,20,0.4)">↑</button>
-
-
-<!-- DOWNLOAD PANEL -->
-<div class="dl-panel" id="dlPanel">
-  <div class="dl-panel-head">
-    <div class="dl-panel-title">⬇ Download</div>
-    <button class="dl-panel-close" onclick="closeDlPanel()">✕</button>
-  </div>
-  <div class="dl-quality-row" id="dlQualityRow">
-    <button class="dl-q-btn active" onclick="selectQuality('1080p',this)">1080p<small>Full HD</small></button>
-    <button class="dl-q-btn" onclick="selectQuality('720p',this)">720p<small>HD</small></button>
-    <button class="dl-q-btn" onclick="selectQuality('480p',this)">480p<small>SD · Smaller</small></button>
-    <button class="dl-q-btn" onclick="selectQuality('360p',this)">360p<small>Lite</small></button>
-  </div>
-  <div class="dl-source-list" id="dlSourceList"></div>
-  <div style="padding:12px 16px;font-size:10px;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);margin-top:8px">
-    Downloads happen in the background. Stay on TAVIK while it loads.
-  </div>
-</div>
-
-<!-- FLOATING DOWNLOAD BADGE -->
-<div class="dl-fab" id="dlFab">
-  <div class="dl-badge" onclick="toggleDlPanel()">
-    <div class="dl-badge-icon">
-      ⬇
-      <div class="dl-badge-ring" id="dlBadgeRing" style="display:none"></div>
-    </div>
-    <div class="dl-badge-text">
-      <div class="dl-badge-title" id="dlBadgeTitle">Downloading...</div>
-      <div class="dl-badge-sub" id="dlBadgeSub">Tap to manage</div>
-      <div class="dl-badge-bar"><div class="dl-badge-fill" id="dlBadgeFill"></div></div>
+    <div id="authFormUp" style="display:none">
+      <div class="auth-field"><label>Your Name</label><input class="auth-input" type="text" id="upName" placeholder="Full name"></div>
+      <div class="auth-field"><label>Email</label><input class="auth-input" type="email" id="upEmail" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="auth-field"><label>Password</label><input class="auth-input" type="password" id="upPass" placeholder="Min 6 characters" autocomplete="new-password"></div>
+      <button class="auth-submit" id="upBtn" onclick="doEmailSignUp()">Create Account</button>
     </div>
   </div>
 </div>
